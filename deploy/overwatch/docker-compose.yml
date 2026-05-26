@@ -1,0 +1,49 @@
+services:
+  plugin-build:
+    image: node:24-slim
+    working_dir: /plugin
+    volumes:
+      - ../..:/plugin
+    command: sh -lc "npm ci && npm run build"
+
+  contextforge:
+    build:
+      context: ../..
+      dockerfile: deploy/overwatch/Dockerfile.sidecar
+      args:
+        CONTEXTFORGE_PIP_SPEC: ${CONTEXTFORGE_PIP_SPEC:-git+https://github.com/Betanu701/contextforge.git}
+    environment:
+      CONTEXTFORGE_DB_PATH: /data/contextforge.db
+      CONTEXTFORGE_MAX_CONTEXT_TOKENS: ${CONTEXTFORGE_MAX_CONTEXT_TOKENS:-4096}
+      CONTEXTFORGE_MAX_NODE_TOKENS: ${CONTEXTFORGE_MAX_NODE_TOKENS:-768}
+      CONTEXTFORGE_INGEST_ROOT: /ingest
+    ports:
+      - "${CONTEXTFORGE_PORT:-8765}:8765"
+    volumes:
+      - contextforge-data:/data
+      - ${CONTEXTFORGE_INGEST_HOST_DIR:-../../benchmarks/results}:/ingest:ro
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8765/healthz', timeout=2).read()"]
+      interval: 10s
+      timeout: 3s
+      retries: 12
+
+  openclaw:
+    image: ${OPENCLAW_IMAGE:-ghcr.io/openclaw/openclaw:latest}
+    depends_on:
+      plugin-build:
+        condition: service_completed_successfully
+      contextforge:
+        condition: service_healthy
+    environment:
+      CONTEXTFORGE_SERVICE_URL: http://contextforge:8765
+    volumes:
+      - ../..:/plugins/contextforge:ro
+      - openclaw-data:/root/.openclaw
+      - ./openclaw.config.example.json5:/config/openclaw.config.example.json5:ro
+    ports:
+      - "${OPENCLAW_GATEWAY_PORT:-3000}:3000"
+
+volumes:
+  contextforge-data:
+  openclaw-data:

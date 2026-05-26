@@ -1,0 +1,11 @@
+node_modules/
+dist/
+coverage/
+.pytest_cache/
+__pycache__/
+*.pyc
+.venv/
+.env
+contextforge.db*
+benchmarks/results/
+

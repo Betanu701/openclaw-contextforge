@@ -1,0 +1,27 @@
+FROM python:3.12-slim
+
+ARG CONTEXTFORGE_PIP_SPEC=git+https://github.com/Betanu701/contextforge.git
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    CONTEXTFORGE_DB_PATH=/data/contextforge.db \
+    CONTEXTFORGE_MAX_CONTEXT_TOKENS=4096 \
+    CONTEXTFORGE_MAX_NODE_TOKENS=768 \
+    CONTEXTFORGE_HOST=0.0.0.0 \
+    CONTEXTFORGE_PORT=8765
+
+WORKDIR /app
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends git \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY sidecar/pyproject.toml ./pyproject.toml
+COPY sidecar/contextforge_sidecar ./contextforge_sidecar
+
+RUN pip install --no-cache-dir "${CONTEXTFORGE_PIP_SPEC}" . \
+    && mkdir -p /data
+
+EXPOSE 8765
+
+CMD ["python", "-m", "contextforge_sidecar"]

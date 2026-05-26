@@ -1,0 +1,49 @@
+{
+  "name": "openclaw-contextforge",
+  "version": "0.1.0",
+  "description": "OpenClaw memory plugin backed by ContextForge hierarchical memory",
+  "type": "module",
+  "main": "dist/index.js",
+  "files": [
+    "benchmarks/",
+    "deploy/",
+    "dist/",
+    "openclaw.plugin.json",
+    "README.md",
+    "scripts/",
+    "sidecar/"
+  ],
+  "openclaw": {
+    "extensions": [
+      "./dist/index.js"
+    ]
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test:sidecar": "PYTHONPATH=../contextforge:sidecar:. python3 -m pytest sidecar/tests -q",
+    "bench:self-test": "python3 benchmarks/needle_haystack.py self-test"
+  },
+  "keywords": [
+    "openclaw",
+    "contextforge",
+    "memory",
+    "llm"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "openclaw": "*"
+  },
+  "peerDependenciesMeta": {
+    "openclaw": {
+      "optional": true
+    }
+  },
+  "dependencies": {
+    "typebox": "1.1.38"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "typescript": "6.0.3"
+  }
+}

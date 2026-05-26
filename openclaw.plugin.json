@@ -1,0 +1,135 @@
+{
+  "id": "contextforge",
+  "commandAliases": [
+    {
+      "name": "cf"
+    }
+  ],
+  "activation": {
+    "onStartup": true,
+    "onCommands": [
+      "cf"
+    ]
+  },
+  "kind": "memory",
+  "contracts": {
+    "tools": [
+      "contextforge_recall",
+      "contextforge_remember",
+      "contextforge_ingest",
+      "contextforge_forget",
+      "contextforge_stats"
+    ]
+  },
+  "uiHints": {
+    "serviceUrl": {
+      "label": "ContextForge service URL",
+      "placeholder": "http://contextforge:8765",
+      "help": "HTTP URL for the ContextForge sidecar"
+    },
+    "namespacePrefix": {
+      "label": "Namespace prefix",
+      "placeholder": "openclaw",
+      "advanced": true,
+      "help": "Prefix added before user/session identifiers to prevent cross-application memory mixing"
+    },
+    "autoRecall": {
+      "label": "Auto-recall",
+      "help": "Automatically inject relevant ContextForge memories into each prompt"
+    },
+    "autoCapture": {
+      "label": "Explicit auto-capture",
+      "help": "Capture user turns that contain configured remember/save trigger phrases"
+    },
+    "recallMaxTokens": {
+      "label": "Recall max tokens",
+      "placeholder": "4096",
+      "advanced": true
+    },
+    "recallMaxChars": {
+      "label": "Recall query max chars",
+      "placeholder": "2000",
+      "advanced": true
+    },
+    "captureMaxChars": {
+      "label": "Capture max chars",
+      "placeholder": "4000",
+      "advanced": true
+    },
+    "autoRecallTimeoutMs": {
+      "label": "Auto-recall timeout",
+      "placeholder": "750",
+      "advanced": true
+    },
+    "timeoutMs": {
+      "label": "Tool timeout",
+      "placeholder": "5000",
+      "advanced": true
+    },
+    "category": {
+      "label": "Default category",
+      "placeholder": "openclaw",
+      "advanced": true
+    },
+    "autoCaptureTriggers": {
+      "label": "Auto-capture trigger phrases",
+      "advanced": true
+    }
+  },
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "serviceUrl": {
+        "type": "string"
+      },
+      "namespacePrefix": {
+        "type": "string"
+      },
+      "autoRecall": {
+        "type": "boolean"
+      },
+      "autoCapture": {
+        "type": "boolean"
+      },
+      "recallMaxTokens": {
+        "type": "number",
+        "minimum": 256,
+        "maximum": 65536
+      },
+      "recallMaxChars": {
+        "type": "number",
+        "minimum": 100,
+        "maximum": 20000
+      },
+      "captureMaxChars": {
+        "type": "number",
+        "minimum": 100,
+        "maximum": 20000
+      },
+      "autoRecallTimeoutMs": {
+        "type": "number",
+        "minimum": 100,
+        "maximum": 10000
+      },
+      "timeoutMs": {
+        "type": "number",
+        "minimum": 500,
+        "maximum": 60000
+      },
+      "category": {
+        "type": "string"
+      },
+      "autoCaptureTriggers": {
+        "type": "array",
+        "maxItems": 50,
+        "items": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        }
+      }
+    }
+  }
+}
+

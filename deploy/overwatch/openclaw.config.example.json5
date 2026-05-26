@@ -1,0 +1,36 @@
+{
+  plugins: {
+    enabled: true,
+    load: {
+      paths: ["/plugins/contextforge"]
+    },
+    entries: {
+      contextforge: {
+        enabled: true,
+        hooks: {
+          allowPromptInjection: true,
+          allowConversationAccess: true
+        },
+        config: {
+          serviceUrl: "${CONTEXTFORGE_SERVICE_URL}",
+          namespacePrefix: "openclaw",
+          autoRecall: true,
+          autoCapture: true,
+          recallMaxTokens: 4096,
+          autoRecallTimeoutMs: 750,
+          category: "openclaw"
+        }
+      },
+      "memory-lancedb": {
+        enabled: false
+      },
+      "active-memory": {
+        enabled: false
+      }
+    },
+    slots: {
+      memory: "contextforge"
+    }
+  }
+}
+
