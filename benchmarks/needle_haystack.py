@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import random
 import re
 import time
@@ -11,6 +12,16 @@ import urllib.request
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
+
+
+OFFICIAL_NIAH_REPO = "https://github.com/gkamradt/LLMTest_NeedleInAHaystack"
+OFFICIAL_NIAH_LICENSE = "MIT License, Copyright (c) 2023 Greg Kamradt"
+OFFICIAL_NIAH_NEEDLE = (
+    "\nThe best thing to do in San Francisco is eat a sandwich and sit in Dolores Park "
+    "on a sunny day.\n"
+)
+OFFICIAL_NIAH_QUESTION = "What is the best thing to do in San Francisco?"
+OFFICIAL_NIAH_EXPECTED = "eat a sandwich and sit in Dolores Park on a sunny day"
 
 
 @dataclass(frozen=True)
@@ -67,6 +78,88 @@ def generate_needles(count: int, seed: int) -> list[Needle]:
 
 def estimate_word_tokens(text: str) -> int:
     return len(text.split())
+
+
+class TokenCodec:
+    name = "whitespace"
+
+    def encode(self, text: str) -> list[Any]:
+        return text.split()
+
+    def decode(self, tokens: list[Any], context_length: int | None = None) -> str:
+        selected = tokens[:context_length] if context_length is not None else tokens
+        return " ".join(str(token) for token in selected)
+
+    def is_period_token(self, token: Any) -> bool:
+        return str(token).endswith(".")
+
+    def count(self, text: str) -> int:
+        return len(self.encode(text))
+
+    def tail(self, text: str, token_budget: int) -> str:
+        tokens = self.encode(text)
+        return self.decode(tokens[-token_budget:])
+
+
+class TiktokenCodec(TokenCodec):
+    def __init__(self, tokenizer_name: str) -> None:
+        import tiktoken
+
+        try:
+            self.tokenizer = tiktoken.get_encoding(tokenizer_name)
+            self.name = f"tiktoken:{tokenizer_name}"
+        except ValueError:
+            try:
+                self.tokenizer = tiktoken.encoding_for_model(tokenizer_name)
+            except KeyError as error:
+                raise ValueError(f"Unknown tiktoken encoding or model: {tokenizer_name}") from error
+            self.name = f"tiktoken:model:{tokenizer_name}"
+        self.period_tokens = set(self.tokenizer.encode("."))
+
+    def encode(self, text: str) -> list[int]:
+        return self.tokenizer.encode(text)
+
+    def decode(self, tokens: list[Any], context_length: int | None = None) -> str:
+        selected = tokens[:context_length] if context_length is not None else tokens
+        return self.tokenizer.decode([int(token) for token in selected])
+
+    def is_period_token(self, token: Any) -> bool:
+        return int(token) in self.period_tokens
+
+
+def make_token_codec(tokenizer_name: str) -> TokenCodec:
+    try:
+        return TiktokenCodec(tokenizer_name)
+    except ImportError:
+        return TokenCodec()
+
+
+def parse_int_list(raw: str) -> list[int]:
+    values: list[int] = []
+    for part in raw.split(","):
+        value = part.strip().replace("_", "")
+        if not value:
+            continue
+        values.append(int(value))
+    if not values:
+        raise ValueError("list must contain at least one value")
+    return values
+
+
+def parse_float_list(raw: str) -> list[float]:
+    values: list[float] = []
+    for part in raw.split(","):
+        value = part.strip().replace("_", "")
+        if not value:
+            continue
+        values.append(float(value))
+    if not values:
+        raise ValueError("list must contain at least one value")
+    return values
+
+
+def depth_label(depth_percent: float) -> str:
+    return str(depth_percent).replace(".", "p").rstrip("0").rstrip("p")
 
 
 def filler_sentence(rng: random.Random, index: int) -> str:
@@ -306,6 +399,116 @@ def validate_conversation_dataset(dataset: dict[str, Any]) -> None:
         seen_questions.add(needle.question)
 
 
+def read_official_haystack(haystack_dir: str, max_context_length: int, codec: TokenCodec) -> str:
+    root = Path(haystack_dir)
+    if not root.exists():
+        raise FileNotFoundError(f"haystack directory does not exist: {root}")
+    files = sorted(root.glob("*.txt"))
+    if not files:
+        raise ValueError(f"haystack directory has no .txt files: {root}")
+
+    corpus = "\n".join(file.read_text(encoding="utf-8", errors="replace") for file in files)
+    if not corpus.strip():
+        raise ValueError(f"haystack directory has no readable text: {root}")
+
+    corpus_tokens = codec.count(corpus)
+    repetitions = max(1, math.ceil(max_context_length / max(1, corpus_tokens)) + 1)
+    return "\n".join(corpus for _ in range(repetitions))
+
+
+def insert_official_needle(
+    context: str,
+    needle: str,
+    depth_percent: float,
+    context_length: int,
+    final_context_length_buffer: int,
+    codec: TokenCodec,
+) -> str:
+    needle_tokens = codec.encode(needle)
+    context_tokens = codec.encode(context)
+    usable_context_length = context_length - final_context_length_buffer
+    if usable_context_length <= len(needle_tokens):
+        raise ValueError(
+            "context_length must exceed final_context_length_buffer plus the needle length"
+        )
+
+    if len(context_tokens) + len(needle_tokens) > usable_context_length:
+        context_tokens = context_tokens[: usable_context_length - len(needle_tokens)]
+
+    if depth_percent == 100:
+        tokens_new_context = context_tokens + needle_tokens
+    else:
+        insertion_point = int(len(context_tokens) * (depth_percent / 100))
+        original_insertion_point = insertion_point
+        tokens_new_context = context_tokens[:insertion_point]
+
+        while tokens_new_context and not codec.is_period_token(tokens_new_context[-1]):
+            insertion_point -= 1
+            tokens_new_context = context_tokens[:insertion_point]
+
+        if not tokens_new_context and original_insertion_point > 0:
+            insertion_point = original_insertion_point
+            tokens_new_context = context_tokens[:insertion_point]
+
+        tokens_new_context += needle_tokens + context_tokens[insertion_point:]
+
+    return codec.decode(tokens_new_context)
+
+
+def validate_official_case(case: dict[str, Any]) -> None:
+    context = case["context"]
+    needle = str(case["needle"]).strip()
+    expected = str(case["expected"])
+    if needle not in context:
+        raise AssertionError(
+            f"official NIAH needle missing from context length {case['contextLength']} "
+            f"depth {case['depthPercent']}"
+        )
+    if context.count(expected) != 1:
+        raise AssertionError(
+            f"official NIAH expected answer is not unique for context length "
+            f"{case['contextLength']} depth {case['depthPercent']}"
+        )
+
+
+def make_official_cases(
+    haystack_dir: str,
+    context_lengths: list[int],
+    depth_percents: list[float],
+    final_context_length_buffer: int,
+    codec: TokenCodec,
+    needle: str,
+    question: str,
+    expected: str,
+) -> list[dict[str, Any]]:
+    haystack = read_official_haystack(haystack_dir, max(context_lengths), codec)
+    cases: list[dict[str, Any]] = []
+    for context_length in context_lengths:
+        trimmed_context = codec.decode(codec.encode(haystack), context_length)
+        for depth_percent in depth_percents:
+            context = insert_official_needle(
+                trimmed_context,
+                needle,
+                depth_percent,
+                context_length,
+                final_context_length_buffer,
+                codec,
+            )
+            case = {
+                "id": f"official-len{context_length}-depth{depth_label(depth_percent)}",
+                "context": context,
+                "contextLength": context_length,
+                "actualContextTokens": codec.count(context),
+                "depthPercent": depth_percent,
+                "needle": needle,
+                "question": question,
+                "expected": expected,
+            }
+            validate_official_case(case)
+            cases.append(case)
+    return cases
+
+
 def post_json(url: str, payload: dict[str, Any], timeout: float) -> dict[str, Any]:
     data = json.dumps(payload).encode("utf-8")
     request = urllib.request.Request(
@@ -476,6 +679,110 @@ def run_contextforge_conversation(
     }
 
 
+def run_contextforge_official(
+    sidecar_url: str,
+    cases: list[dict[str, Any]],
+    namespace: str,
+    timeout: float,
+    max_tokens: int,
+    limit: int,
+    native_window_tokens: int,
+    codec: TokenCodec,
+) -> dict[str, Any]:
+    sidecar_url = sidecar_url.rstrip("/")
+    rows: list[dict[str, Any]] = []
+    correct = 0
+    native_tail_visible = 0
+    native_full_context_eligible = 0
+    ingest_chunks = 0
+    ingest_latency_ms = 0
+
+    for case in cases:
+        case_namespace = f"{namespace}/{case['id']}"
+        ingest_started = time.perf_counter()
+        ingest = post_json(
+            f"{sidecar_url}/ingest",
+            {
+                "namespace": {"namespace": case_namespace, "sessionId": case["id"]},
+                "text": case["context"],
+                "title": case["id"],
+                "category": "benchmark-official-niah",
+                "metadata": {
+                    "source": "official_compatible_needle_haystack",
+                    "contextLength": case["contextLength"],
+                    "depthPercent": case["depthPercent"],
+                    "officialReference": OFFICIAL_NIAH_REPO,
+                },
+            },
+            timeout,
+        )
+        ingest_latency_ms += int((time.perf_counter() - ingest_started) * 1000)
+        ingest_chunks += int(ingest["count"])
+
+        started = time.perf_counter()
+        recall = post_json(
+            f"{sidecar_url}/recall",
+            {
+                "namespace": {"namespace": case_namespace, "sessionId": case["id"]},
+                "query": case["question"],
+                "category": "benchmark-official-niah",
+                "maxTokens": max_tokens,
+                "limit": limit,
+            },
+            timeout,
+        )
+        latency_ms = int((time.perf_counter() - started) * 1000)
+        context = recall.get("context", "")
+        source_hit = case["expected"] in context
+        native_tail_context = codec.tail(case["context"], native_window_tokens)
+        native_tail_contains = case["expected"] in native_tail_context
+        native_full_context_fits = case["contextLength"] <= native_window_tokens
+        source_rank = answer_source_rank(context, recall.get("sources", []), case["expected"])
+
+        correct += int(source_hit)
+        native_tail_visible += int(native_tail_contains)
+        native_full_context_eligible += int(native_full_context_fits)
+        rows.append(
+            {
+                "id": case["id"],
+                "contextLength": case["contextLength"],
+                "actualContextTokens": case["actualContextTokens"],
+                "depthPercent": case["depthPercent"],
+                "expected": case["expected"],
+                "sourceHit": source_hit,
+                "sourceRank": source_rank,
+                "nativeTailContainsAnswer": native_tail_contains,
+                "nativeFullContextFits": native_full_context_fits,
+                "latencyMs": latency_ms,
+                "sources": [source["id"] for source in recall.get("sources", [])],
+                "tokens": recall.get("totalTokens", 0),
+            }
+        )
+
+    total = len(cases)
+    return {
+        "mode": "contextforge-official-compatible-niah",
+        "officialReference": OFFICIAL_NIAH_REPO,
+        "officialLicense": OFFICIAL_NIAH_LICENSE,
+        "retrievalOnly": True,
+        "namespace": namespace,
+        "recallMaxTokens": max_tokens,
+        "nativeWindowTokens": native_window_tokens,
+        "contextForgeAccuracy": correct / max(1, total),
+        "nativeTailVisibility": native_tail_visible / max(1, total),
+        "nativeFullContextEligibility": native_full_context_eligible / max(1, total),
+        "correct": correct,
+        "nativeTailVisible": native_tail_visible,
+        "nativeFullContextEligible": native_full_context_eligible,
+        "total": total,
+        "ingest": {
+            "chunks": ingest_chunks,
+            "latencyMs": ingest_latency_ms,
+        },
+        "rows": rows,
+    }
+
+
 def answer_source_rank(context: str, sources: list[dict[str, Any]], expected: str) -> int | None:
     if expected not in context:
         return None
@@ -502,6 +809,34 @@ def command_generate(args: argparse.Namespace) -> None:
         print(output)
 
 
+def validate_official_generator(codec: TokenCodec) -> None:
+    haystack = (
+        "This is ordinary background prose. "
+        "It contains sentence breaks for placement. "
+        "Nothing in this haystack answers the San Francisco question. "
+    ) * 400
+    for context_length in [1_000, 2_000]:
+        trimmed_context = codec.decode(codec.encode(haystack), context_length)
+        for depth_percent in [0, 50, 100]:
+            context = insert_official_needle(
+                trimmed_context,
+                OFFICIAL_NIAH_NEEDLE,
+                depth_percent,
+                context_length,
+                200,
+                codec,
+            )
+            validate_official_case(
+                {
+                    "context": context,
+                    "contextLength": context_length,
+                    "depthPercent": depth_percent,
+                    "needle": OFFICIAL_NIAH_NEEDLE,
+                    "expected": OFFICIAL_NIAH_EXPECTED,
+                }
+            )
+
+
 def command_self_test(args: argparse.Namespace) -> None:
     for tokens in [1_000, 10_000, 50_000]:
         dataset = make_dataset(tokens, args.needles, args.seed)
@@ -515,6 +850,7 @@ def command_self_test(args: argparse.Namespace) -> None:
         early_turns=8,
     )
     validate_conversation_dataset(conversation)
+    validate_official_generator(make_token_codec("cl100k_base"))
     print("needle_haystack self-test passed")
 
 
@@ -554,6 +890,53 @@ def command_conversation(args: argparse.Namespace) -> None:
         args.native_window_tokens,
     )
     print(json.dumps(result, indent=2))
+
+
+def command_official(args: argparse.Namespace) -> None:
+    codec = make_token_codec(args.tokenizer)
+    context_lengths = parse_int_list(args.context_lengths)
+    depth_percents = parse_float_list(args.depths)
+    cases = make_official_cases(
+        args.haystack_dir,
+        context_lengths,
+        depth_percents,
+        args.final_context_length_buffer,
+        codec,
+        args.needle,
+        args.retrieval_question,
+        args.expected,
+    )
+    run_id = args.run_id or f"official-{int(time.time())}"
+    namespace = f"{args.namespace.rstrip('/')}/{run_id}"
+    result = run_contextforge_official(
+        args.sidecar_url,
+        cases,
+        namespace,
+        args.timeout,
+        args.max_tokens,
+        args.limit,
+        args.native_window_tokens,
+        codec,
+    )
+    result["runId"] = run_id
+    result["tokenizer"] = codec.name
+    result["grid"] = {
+        "contextLengths": context_lengths,
+        "depthPercents": depth_percents,
+        "finalContextLengthBuffer": args.final_context_length_buffer,
+    }
+    result["needle"] = args.needle.strip()
+    result["retrievalQuestion"] = args.retrieval_question
+    result["haystack"] = {
+        "source": "external",
+        "directory": "needlehaystack/PaulGrahamEssays",
+        "note": "Official Paul Graham essay corpus is loaded from the --haystack-dir local clone; it is not vendored here.",
+    }
+    output = json.dumps(result, indent=2)
+    if args.output:
+        Path(args.output).write_text(output + "\n", encoding="utf-8")
+    else:
+        print(output)
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -602,6 +985,40 @@ def build_parser() -> argparse.ArgumentParser:
     conversation.add_argument("--limit", type=int, default=8)
     conversation.add_argument("--native-window-tokens", type=int, default=40_960)
     conversation.set_defaults(func=command_conversation)
+
+    official = subparsers.add_parser(
+        "official",
+        help="Run a Greg Kamradt official-compatible NIAH grid against sidecar recall",
+    )
+    official.add_argument("--sidecar-url", default="http://localhost:8765")
+    official.add_argument("--namespace", default="openclaw/benchmark/official-niah")
+    official.add_argument("--run-id")
+    official.add_argument(
+        "--haystack-dir",
+        required=True,
+        help="Path to the official repo's needlehaystack/PaulGrahamEssays directory",
+    )
+    official.add_argument(
+        "--context-lengths",
+        default="4000,8000,16000,32000,40000,64000,128000",
+        help="Comma-separated context lengths to test",
+    )
+    official.add_argument(
+        "--depths",
+        default="0,10,25,50,75,90,100",
+        help="Comma-separated document depth percentages to test",
+    )
+    official.add_argument("--needle", default=OFFICIAL_NIAH_NEEDLE)
+    official.add_argument("--retrieval-question", default=OFFICIAL_NIAH_QUESTION)
+    official.add_argument("--expected", default=OFFICIAL_NIAH_EXPECTED)
+    official.add_argument("--tokenizer", default="cl100k_base")
+    official.add_argument("--final-context-length-buffer", type=int, default=200)
+    official.add_argument("--timeout", type=float, default=60.0)
+    official.add_argument("--max-tokens", type=int, default=4096)
+    official.add_argument("--limit", type=int, default=8)
+    official.add_argument("--native-window-tokens", type=int, default=40_960)
+    official.add_argument("--output")
+    official.set_defaults(func=command_official)
     return parser
 
 

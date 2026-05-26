@@ -113,6 +113,34 @@ Run a retrieval-only needle-in-the-haystack check against a running sidecar:
 python3 benchmarks/needle_haystack.py retrieval --sidecar-url http://localhost:8765 --tokens 10000 --needles 10
 ```
 
+Run a Greg Kamradt official-compatible NIAH grid without vendoring the official corpus:
+
+```bash
+tmp="$(mktemp -d)"
+git clone --depth 1 https://github.com/gkamradt/LLMTest_NeedleInAHaystack.git "$tmp/niah"
+python3 benchmarks/needle_haystack.py official \
+  --sidecar-url http://localhost:8765 \
+  --haystack-dir "$tmp/niah/needlehaystack/PaulGrahamEssays" \
+  --context-lengths 4000,8000,16000,32000,40000,64000,128000 \
+  --depths 0,10,25,50,75,90,100
+rm -rf "$tmp"
+```
+
+This mode follows the official single-needle shape: Paul Graham essay haystack, the San Francisco/Dolores Park needle, document-depth insertion, context-length grid, and the original retrieval question. It is a protocol-compatible retrieval run against ContextForge, not a vendored copy of the official benchmark package.
+
+Current official-compatible result is committed at `benchmarks/results/official-compatible-128k-grid.json`:
+
+| Metric | Result |
+| --- | ---: |
+| Context lengths | 4K, 8K, 16K, 32K, 40K, 64K, 128K |
+| Depths | 0, 10, 25, 50, 75, 90, 100 |
+| Cases | 49 |
+| Recall budget | 4,096 tokens |
+| ContextForge source hits | 49/49 |
+| Native 40,960-token full-context eligibility | 35/49 |
+| Native 40,960-token tail visibility | 42/49 |
+| ContextForge chunks | 3,332 |
+
 Run the long multi-turn conversation decay benchmark:
 
 ```bash
@@ -139,5 +167,12 @@ Current benchmark result is committed at `benchmarks/results/conversation-large-
 | Recall budget | 4,096 tokens |
 | ContextForge source hits | 12/12 |
 | Native 40,960-token window visibility | 2/12 |
+
+Use both benchmark families in public claims:
+
+| Benchmark | Claim it supports |
+| --- | --- |
+| Official-compatible NIAH | ContextForge can recover the canonical San Francisco needle across the standard context-length/depth grid. |
+| Conversation decay | ContextForge can recover old conversational facts after many turns and far beyond the model's native recent-context window. |
 
 For model comparisons, keep the same OpenClaw model/provider for baseline and ContextForge-enabled runs, disable other memory plugins, and report retrieval source-hit rate, answer accuracy, and latency separately.

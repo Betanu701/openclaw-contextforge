@@ -9,3 +9,4 @@ __pycache__/
 contextforge.db*
 benchmarks/results/*
 !benchmarks/results/conversation-large-100x12k.json
+!benchmarks/results/official-compatible-*.json

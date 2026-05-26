@@ -1,0 +1,1026 @@
+{
+  "mode": "contextforge-official-compatible-niah",
+  "officialReference": "https://github.com/gkamradt/LLMTest_NeedleInAHaystack",
+  "officialLicense": "MIT License, Copyright (c) 2023 Greg Kamradt",
+  "retrievalOnly": true,
+  "namespace": "openclaw/benchmark/official-niah/official-compatible-128k-grid",
+  "recallMaxTokens": 4096,
+  "nativeWindowTokens": 40960,
+  "contextForgeAccuracy": 1.0,
+  "nativeTailVisibility": 0.8571428571428571,
+  "nativeFullContextEligibility": 0.7142857142857143,
+  "correct": 49,
+  "nativeTailVisible": 42,
+  "nativeFullContextEligible": 35,
+  "total": 49,
+  "ingest": {
+    "chunks": 3332,
+    "latencyMs": 73923
+  },
+  "rows": [
+    {
+      "id": "official-len4000-depth0",
+      "contextLength": 4000,
+      "actualContextTokens": 3800,
+      "depthPercent": 0.0,
+      "expected": "eat a sandwich and sit in Dolores Park on a sunny day",
+      "sourceHit": true,
+      "sourceRank": 1,
+      "nativeTailContainsAnswer": true,
+      "nativeFullContextFits": true,
+      "latencyMs": 2,
+      "sources": [
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len4000-depth0/benchmark-official-niah/official-len4000-depth0-c2fafe970123/chunk-0001",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len4000-depth0/benchmark-official-niah/official-len4000-depth0-c2fafe970123/chunk-0002",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len4000-depth0/benchmark-official-niah/official-len4000-depth0-c2fafe970123/chunk-0003"
+      ],
+      "tokens": 2415
+    },
+    {
+      "id": "official-len4000-depth10",
+      "contextLength": 4000,
+      "actualContextTokens": 3799,
+      "depthPercent": 10.0,
+      "expected": "eat a sandwich and sit in Dolores Park on a sunny day",
+      "sourceHit": true,
+      "sourceRank": 1,
+      "nativeTailContainsAnswer": true,
+      "nativeFullContextFits": true,
+      "latencyMs": 3,
+      "sources": [
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len4000-depth10/benchmark-official-niah/official-len4000-depth10-f2fe1ed2784a/chunk-0001",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len4000-depth10/benchmark-official-niah/official-len4000-depth10-f2fe1ed2784a/chunk-0002",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len4000-depth10/benchmark-official-niah/official-len4000-depth10-f2fe1ed2784a/chunk-0003"
+      ],
+      "tokens": 2418
+    },
+    {
+      "id": "official-len4000-depth25",
+      "contextLength": 4000,
+      "actualContextTokens": 3799,
+      "depthPercent": 25.0,
+      "expected": "eat a sandwich and sit in Dolores Park on a sunny day",
+      "sourceHit": true,
+      "sourceRank": 1,
+      "nativeTailContainsAnswer": true,
+      "nativeFullContextFits": true,
+      "latencyMs": 2,
+      "sources": [
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len4000-depth25/benchmark-official-niah/official-len4000-depth25-6076fe7932d9/chunk-0002",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len4000-depth25/benchmark-official-niah/official-len4000-depth25-6076fe7932d9/chunk-0001",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len4000-depth25/benchmark-official-niah/official-len4000-depth25-6076fe7932d9/chunk-0003"
+      ],
+      "tokens": 2418
+    },
+    {
+      "id": "official-len4000-depth50",
+      "contextLength": 4000,
+      "actualContextTokens": 3799,
+      "depthPercent": 50.0,
+      "expected": "eat a sandwich and sit in Dolores Park on a sunny day",
+      "sourceHit": true,
+      "sourceRank": 1,
+      "nativeTailContainsAnswer": true,
+      "nativeFullContextFits": true,
+      "latencyMs": 2,
+      "sources": [
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len4000-depth50/benchmark-official-niah/official-len4000-depth50-895fb5e36b21/chunk-0003",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len4000-depth50/benchmark-official-niah/official-len4000-depth50-895fb5e36b21/chunk-0004",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len4000-depth50/benchmark-official-niah/official-len4000-depth50-895fb5e36b21/chunk-0001",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len4000-depth50/benchmark-official-niah/official-len4000-depth50-895fb5e36b21/chunk-0002"
+      ],
+      "tokens": 3229
+    },
+    {
+      "id": "official-len4000-depth75",
+      "contextLength": 4000,
+      "actualContextTokens": 3799,
+      "depthPercent": 75.0,
+      "expected": "eat a sandwich and sit in Dolores Park on a sunny day",
+      "sourceHit": true,
+      "sourceRank": 1,
+      "nativeTailContainsAnswer": true,
+      "nativeFullContextFits": true,
+      "latencyMs": 2,
+      "sources": [
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len4000-depth75/benchmark-official-niah/official-len4000-depth75-0f2f4576d67c/chunk-0005",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len4000-depth75/benchmark-official-niah/official-len4000-depth75-0f2f4576d67c/chunk-0001",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len4000-depth75/benchmark-official-niah/official-len4000-depth75-0f2f4576d67c/chunk-0002",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len4000-depth75/benchmark-official-niah/official-len4000-depth75-0f2f4576d67c/chunk-0003"
+      ],
+      "tokens": 3241
+    },
+    {
+      "id": "official-len4000-depth90",
+      "contextLength": 4000,
+      "actualContextTokens": 3799,
+      "depthPercent": 90.0,
+      "expected": "eat a sandwich and sit in Dolores Park on a sunny day",
+      "sourceHit": true,
+      "sourceRank": 1,
+      "nativeTailContainsAnswer": true,
+      "nativeFullContextFits": true,
+      "latencyMs": 2,
+      "sources": [
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len4000-depth90/benchmark-official-niah/official-len4000-depth90-fd483d0e1857/chunk-0006",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len4000-depth90/benchmark-official-niah/official-len4000-depth90-fd483d0e1857/chunk-0001",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len4000-depth90/benchmark-official-niah/official-len4000-depth90-fd483d0e1857/chunk-0002",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len4000-depth90/benchmark-official-niah/official-len4000-depth90-fd483d0e1857/chunk-0003"
+      ],
+      "tokens": 3201
+    },
+    {
+      "id": "official-len4000-depth100",
+      "contextLength": 4000,
+      "actualContextTokens": 3800,
+      "depthPercent": 100.0,
+      "expected": "eat a sandwich and sit in Dolores Park on a sunny day",
+      "sourceHit": true,
+      "sourceRank": 1,
+      "nativeTailContainsAnswer": true,
+      "nativeFullContextFits": true,
+      "latencyMs": 2,
+      "sources": [
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len4000-depth100/benchmark-official-niah/official-len4000-depth100-37cc6c789b09/chunk-0006",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len4000-depth100/benchmark-official-niah/official-len4000-depth100-37cc6c789b09/chunk-0001",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len4000-depth100/benchmark-official-niah/official-len4000-depth100-37cc6c789b09/chunk-0002",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len4000-depth100/benchmark-official-niah/official-len4000-depth100-37cc6c789b09/chunk-0003"
+      ],
+      "tokens": 3203
+    },
+    {
+      "id": "official-len8000-depth0",
+      "contextLength": 8000,
+      "actualContextTokens": 7800,
+      "depthPercent": 0.0,
+      "expected": "eat a sandwich and sit in Dolores Park on a sunny day",
+      "sourceHit": true,
+      "sourceRank": 1,
+      "nativeTailContainsAnswer": true,
+      "nativeFullContextFits": true,
+      "latencyMs": 3,
+      "sources": [
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len8000-depth0/benchmark-official-niah/official-len8000-depth0-17acdbc38fe4/chunk-0001",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len8000-depth0/benchmark-official-niah/official-len8000-depth0-17acdbc38fe4/chunk-0013",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len8000-depth0/benchmark-official-niah/official-len8000-depth0-17acdbc38fe4/chunk-0009",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len8000-depth0/benchmark-official-niah/official-len8000-depth0-17acdbc38fe4/chunk-0008",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len8000-depth0/benchmark-official-niah/official-len8000-depth0-17acdbc38fe4/chunk-0002"
+      ],
+      "tokens": 3811
+    },
+    {
+      "id": "official-len8000-depth10",
+      "contextLength": 8000,
+      "actualContextTokens": 7799,
+      "depthPercent": 10.0,
+      "expected": "eat a sandwich and sit in Dolores Park on a sunny day",
+      "sourceHit": true,
+      "sourceRank": 1,
+      "nativeTailContainsAnswer": true,
+      "nativeFullContextFits": true,
+      "latencyMs": 3,
+      "sources": [
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len8000-depth10/benchmark-official-niah/official-len8000-depth10-628e5806d3fa/chunk-0002",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len8000-depth10/benchmark-official-niah/official-len8000-depth10-628e5806d3fa/chunk-0001",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len8000-depth10/benchmark-official-niah/official-len8000-depth10-628e5806d3fa/chunk-0013",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len8000-depth10/benchmark-official-niah/official-len8000-depth10-628e5806d3fa/chunk-0009",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len8000-depth10/benchmark-official-niah/official-len8000-depth10-628e5806d3fa/chunk-0008"
+      ],
+      "tokens": 3815
+    },
+    {
+      "id": "official-len8000-depth25",
+      "contextLength": 8000,
+      "actualContextTokens": 7799,
+      "depthPercent": 25.0,
+      "expected": "eat a sandwich and sit in Dolores Park on a sunny day",
+      "sourceHit": true,
+      "sourceRank": 1,
+      "nativeTailContainsAnswer": true,
+      "nativeFullContextFits": true,
+      "latencyMs": 4,
+      "sources": [
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len8000-depth25/benchmark-official-niah/official-len8000-depth25-363a599da527/chunk-0003",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len8000-depth25/benchmark-official-niah/official-len8000-depth25-363a599da527/chunk-0004",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len8000-depth25/benchmark-official-niah/official-len8000-depth25-363a599da527/chunk-0001",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len8000-depth25/benchmark-official-niah/official-len8000-depth25-363a599da527/chunk-0013",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len8000-depth25/benchmark-official-niah/official-len8000-depth25-363a599da527/chunk-0009"
+      ],
+      "tokens": 3807
+    },
+    {
+      "id": "official-len8000-depth50",
+      "contextLength": 8000,
+      "actualContextTokens": 7799,
+      "depthPercent": 50.0,
+      "expected": "eat a sandwich and sit in Dolores Park on a sunny day",
+      "sourceHit": true,
+      "sourceRank": 1,
+      "nativeTailContainsAnswer": true,
+      "nativeFullContextFits": true,
+      "latencyMs": 3,
+      "sources": [
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len8000-depth50/benchmark-official-niah/official-len8000-depth50-3354d1a496d6/chunk-0007",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len8000-depth50/benchmark-official-niah/official-len8000-depth50-3354d1a496d6/chunk-0001",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len8000-depth50/benchmark-official-niah/official-len8000-depth50-3354d1a496d6/chunk-0013",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len8000-depth50/benchmark-official-niah/official-len8000-depth50-3354d1a496d6/chunk-0009",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len8000-depth50/benchmark-official-niah/official-len8000-depth50-3354d1a496d6/chunk-0008",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len8000-depth50/benchmark-official-niah/official-len8000-depth50-3354d1a496d6/chunk-0014"
+      ],
+      "tokens": 4029
+    },
+    {
+      "id": "official-len8000-depth75",
+      "contextLength": 8000,
+      "actualContextTokens": 7799,
+      "depthPercent": 75.0,
+      "expected": "eat a sandwich and sit in Dolores Park on a sunny day",
+      "sourceHit": true,
+      "sourceRank": 1,
+      "nativeTailContainsAnswer": true,
+      "nativeFullContextFits": true,
+      "latencyMs": 4,
+      "sources": [
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len8000-depth75/benchmark-official-niah/official-len8000-depth75-b2c0faf3bb16/chunk-0011",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len8000-depth75/benchmark-official-niah/official-len8000-depth75-b2c0faf3bb16/chunk-0001",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len8000-depth75/benchmark-official-niah/official-len8000-depth75-b2c0faf3bb16/chunk-0013",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len8000-depth75/benchmark-official-niah/official-len8000-depth75-b2c0faf3bb16/chunk-0009",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len8000-depth75/benchmark-official-niah/official-len8000-depth75-b2c0faf3bb16/chunk-0008"
+      ],
+      "tokens": 3810
+    },
+    {
+      "id": "official-len8000-depth90",
+      "contextLength": 8000,
+      "actualContextTokens": 7799,
+      "depthPercent": 90.0,
+      "expected": "eat a sandwich and sit in Dolores Park on a sunny day",
+      "sourceHit": true,
+      "sourceRank": 1,
+      "nativeTailContainsAnswer": true,
+      "nativeFullContextFits": true,
+      "latencyMs": 4,
+      "sources": [
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len8000-depth90/benchmark-official-niah/official-len8000-depth90-853abc073b08/chunk-0013",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len8000-depth90/benchmark-official-niah/official-len8000-depth90-853abc073b08/chunk-0001",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len8000-depth90/benchmark-official-niah/official-len8000-depth90-853abc073b08/chunk-0009",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len8000-depth90/benchmark-official-niah/official-len8000-depth90-853abc073b08/chunk-0008",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len8000-depth90/benchmark-official-niah/official-len8000-depth90-853abc073b08/chunk-0002"
+      ],
+      "tokens": 3815
+    },
+    {
+      "id": "official-len8000-depth100",
+      "contextLength": 8000,
+      "actualContextTokens": 7800,
+      "depthPercent": 100.0,
+      "expected": "eat a sandwich and sit in Dolores Park on a sunny day",
+      "sourceHit": true,
+      "sourceRank": 1,
+      "nativeTailContainsAnswer": true,
+      "nativeFullContextFits": true,
+      "latencyMs": 3,
+      "sources": [
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len8000-depth100/benchmark-official-niah/official-len8000-depth100-3b7d92dbd283/chunk-0014",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len8000-depth100/benchmark-official-niah/official-len8000-depth100-3b7d92dbd283/chunk-0001",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len8000-depth100/benchmark-official-niah/official-len8000-depth100-3b7d92dbd283/chunk-0013",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len8000-depth100/benchmark-official-niah/official-len8000-depth100-3b7d92dbd283/chunk-0009",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len8000-depth100/benchmark-official-niah/official-len8000-depth100-3b7d92dbd283/chunk-0008",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len8000-depth100/benchmark-official-niah/official-len8000-depth100-3b7d92dbd283/chunk-0012"
+      ],
+      "tokens": 4055
+    },
+    {
+      "id": "official-len16000-depth0",
+      "contextLength": 16000,
+      "actualContextTokens": 15800,
+      "depthPercent": 0.0,
+      "expected": "eat a sandwich and sit in Dolores Park on a sunny day",
+      "sourceHit": true,
+      "sourceRank": 1,
+      "nativeTailContainsAnswer": true,
+      "nativeFullContextFits": true,
+      "latencyMs": 6,
+      "sources": [
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len16000-depth0/benchmark-official-niah/official-len16000-depth0-4d7e30b2a9ad/chunk-0001",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len16000-depth0/benchmark-official-niah/official-len16000-depth0-4d7e30b2a9ad/chunk-0024",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len16000-depth0/benchmark-official-niah/official-len16000-depth0-4d7e30b2a9ad/chunk-0013",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len16000-depth0/benchmark-official-niah/official-len16000-depth0-4d7e30b2a9ad/chunk-0009",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len16000-depth0/benchmark-official-niah/official-len16000-depth0-4d7e30b2a9ad/chunk-0008"
+      ],
+      "tokens": 3818
+    },
+    {
+      "id": "official-len16000-depth10",
+      "contextLength": 16000,
+      "actualContextTokens": 15799,
+      "depthPercent": 10.0,
+      "expected": "eat a sandwich and sit in Dolores Park on a sunny day",
+      "sourceHit": true,
+      "sourceRank": 1,
+      "nativeTailContainsAnswer": true,
+      "nativeFullContextFits": true,
+      "latencyMs": 6,
+      "sources": [
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len16000-depth10/benchmark-official-niah/official-len16000-depth10-d5660860a67c/chunk-0003",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len16000-depth10/benchmark-official-niah/official-len16000-depth10-d5660860a67c/chunk-0024",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len16000-depth10/benchmark-official-niah/official-len16000-depth10-d5660860a67c/chunk-0001",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len16000-depth10/benchmark-official-niah/official-len16000-depth10-d5660860a67c/chunk-0013",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len16000-depth10/benchmark-official-niah/official-len16000-depth10-d5660860a67c/chunk-0009"
+      ],
+      "tokens": 3806
+    },
+    {
+      "id": "official-len16000-depth25",
+      "contextLength": 16000,
+      "actualContextTokens": 15799,
+      "depthPercent": 25.0,
+      "expected": "eat a sandwich and sit in Dolores Park on a sunny day",
+      "sourceHit": true,
+      "sourceRank": 1,
+      "nativeTailContainsAnswer": true,
+      "nativeFullContextFits": true,
+      "latencyMs": 5,
+      "sources": [
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len16000-depth25/benchmark-official-niah/official-len16000-depth25-caa37a679fd8/chunk-0007",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len16000-depth25/benchmark-official-niah/official-len16000-depth25-caa37a679fd8/chunk-0024",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len16000-depth25/benchmark-official-niah/official-len16000-depth25-caa37a679fd8/chunk-0001",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len16000-depth25/benchmark-official-niah/official-len16000-depth25-caa37a679fd8/chunk-0013",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len16000-depth25/benchmark-official-niah/official-len16000-depth25-caa37a679fd8/chunk-0009"
+      ],
+      "tokens": 4059
+    },
+    {
+      "id": "official-len16000-depth50",
+      "contextLength": 16000,
+      "actualContextTokens": 15799,
+      "depthPercent": 50.0,
+      "expected": "eat a sandwich and sit in Dolores Park on a sunny day",
+      "sourceHit": true,
+      "sourceRank": 1,
+      "nativeTailContainsAnswer": true,
+      "nativeFullContextFits": true,
+      "latencyMs": 6,
+      "sources": [
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len16000-depth50/benchmark-official-niah/official-len16000-depth50-e8656e18cb0e/chunk-0014",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len16000-depth50/benchmark-official-niah/official-len16000-depth50-e8656e18cb0e/chunk-0024",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len16000-depth50/benchmark-official-niah/official-len16000-depth50-e8656e18cb0e/chunk-0001",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len16000-depth50/benchmark-official-niah/official-len16000-depth50-e8656e18cb0e/chunk-0013",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len16000-depth50/benchmark-official-niah/official-len16000-depth50-e8656e18cb0e/chunk-0009"
+      ],
+      "tokens": 3812
+    },
+    {
+      "id": "official-len16000-depth75",
+      "contextLength": 16000,
+      "actualContextTokens": 15799,
+      "depthPercent": 75.0,
+      "expected": "eat a sandwich and sit in Dolores Park on a sunny day",
+      "sourceHit": true,
+      "sourceRank": 1,
+      "nativeTailContainsAnswer": true,
+      "nativeFullContextFits": true,
+      "latencyMs": 6,
+      "sources": [
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len16000-depth75/benchmark-official-niah/official-len16000-depth75-b0b261cc1f91/chunk-0020",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len16000-depth75/benchmark-official-niah/official-len16000-depth75-b0b261cc1f91/chunk-0024",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len16000-depth75/benchmark-official-niah/official-len16000-depth75-b0b261cc1f91/chunk-0001",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len16000-depth75/benchmark-official-niah/official-len16000-depth75-b0b261cc1f91/chunk-0013",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len16000-depth75/benchmark-official-niah/official-len16000-depth75-b0b261cc1f91/chunk-0009"
+      ],
+      "tokens": 3817
+    },
+    {
+      "id": "official-len16000-depth90",
+      "contextLength": 16000,
+      "actualContextTokens": 15799,
+      "depthPercent": 90.0,
+      "expected": "eat a sandwich and sit in Dolores Park on a sunny day",
+      "sourceHit": true,
+      "sourceRank": 1,
+      "nativeTailContainsAnswer": true,
+      "nativeFullContextFits": true,
+      "latencyMs": 6,
+      "sources": [
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len16000-depth90/benchmark-official-niah/official-len16000-depth90-91a004e18c71/chunk-0024",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len16000-depth90/benchmark-official-niah/official-len16000-depth90-91a004e18c71/chunk-0001",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len16000-depth90/benchmark-official-niah/official-len16000-depth90-91a004e18c71/chunk-0013",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len16000-depth90/benchmark-official-niah/official-len16000-depth90-91a004e18c71/chunk-0009",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len16000-depth90/benchmark-official-niah/official-len16000-depth90-91a004e18c71/chunk-0002"
+      ],
+      "tokens": 3821
+    },
+    {
+      "id": "official-len16000-depth100",
+      "contextLength": 16000,
+      "actualContextTokens": 15800,
+      "depthPercent": 100.0,
+      "expected": "eat a sandwich and sit in Dolores Park on a sunny day",
+      "sourceHit": true,
+      "sourceRank": 1,
+      "nativeTailContainsAnswer": true,
+      "nativeFullContextFits": true,
+      "latencyMs": 8,
+      "sources": [
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len16000-depth100/benchmark-official-niah/official-len16000-depth100-d704242b3e88/chunk-0027",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len16000-depth100/benchmark-official-niah/official-len16000-depth100-d704242b3e88/chunk-0024",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len16000-depth100/benchmark-official-niah/official-len16000-depth100-d704242b3e88/chunk-0001",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len16000-depth100/benchmark-official-niah/official-len16000-depth100-d704242b3e88/chunk-0013",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len16000-depth100/benchmark-official-niah/official-len16000-depth100-d704242b3e88/chunk-0009",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len16000-depth100/benchmark-official-niah/official-len16000-depth100-d704242b3e88/chunk-0012"
+      ],
+      "tokens": 4006
+    },
+    {
+      "id": "official-len32000-depth0",
+      "contextLength": 32000,
+      "actualContextTokens": 31800,
+      "depthPercent": 0.0,
+      "expected": "eat a sandwich and sit in Dolores Park on a sunny day",
+      "sourceHit": true,
+      "sourceRank": 1,
+      "nativeTailContainsAnswer": true,
+      "nativeFullContextFits": true,
+      "latencyMs": 10,
+      "sources": [
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len32000-depth0/benchmark-official-niah/official-len32000-depth0-a2ee56bb9639/chunk-0001",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len32000-depth0/benchmark-official-niah/official-len32000-depth0-a2ee56bb9639/chunk-0024",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len32000-depth0/benchmark-official-niah/official-len32000-depth0-a2ee56bb9639/chunk-0029",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len32000-depth0/benchmark-official-niah/official-len32000-depth0-a2ee56bb9639/chunk-0030",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len32000-depth0/benchmark-official-niah/official-len32000-depth0-a2ee56bb9639/chunk-0033"
+      ],
+      "tokens": 4051
+    },
+    {
+      "id": "official-len32000-depth10",
+      "contextLength": 32000,
+      "actualContextTokens": 31799,
+      "depthPercent": 10.0,
+      "expected": "eat a sandwich and sit in Dolores Park on a sunny day",
+      "sourceHit": true,
+      "sourceRank": 1,
+      "nativeTailContainsAnswer": true,
+      "nativeFullContextFits": true,
+      "latencyMs": 10,
+      "sources": [
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len32000-depth10/benchmark-official-niah/official-len32000-depth10-57f0872b1289/chunk-0006",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len32000-depth10/benchmark-official-niah/official-len32000-depth10-57f0872b1289/chunk-0005",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len32000-depth10/benchmark-official-niah/official-len32000-depth10-57f0872b1289/chunk-0024",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len32000-depth10/benchmark-official-niah/official-len32000-depth10-57f0872b1289/chunk-0029",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len32000-depth10/benchmark-official-niah/official-len32000-depth10-57f0872b1289/chunk-0001"
+      ],
+      "tokens": 3850
+    },
+    {
+      "id": "official-len32000-depth25",
+      "contextLength": 32000,
+      "actualContextTokens": 31799,
+      "depthPercent": 25.0,
+      "expected": "eat a sandwich and sit in Dolores Park on a sunny day",
+      "sourceHit": true,
+      "sourceRank": 1,
+      "nativeTailContainsAnswer": true,
+      "nativeFullContextFits": true,
+      "latencyMs": 17,
+      "sources": [
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len32000-depth25/benchmark-official-niah/official-len32000-depth25-dfa4d5843683/chunk-0014",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len32000-depth25/benchmark-official-niah/official-len32000-depth25-dfa4d5843683/chunk-0024",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len32000-depth25/benchmark-official-niah/official-len32000-depth25-dfa4d5843683/chunk-0029",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len32000-depth25/benchmark-official-niah/official-len32000-depth25-dfa4d5843683/chunk-0001",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len32000-depth25/benchmark-official-niah/official-len32000-depth25-dfa4d5843683/chunk-0030"
+      ],
+      "tokens": 4045
+    },
+    {
+      "id": "official-len32000-depth50",
+      "contextLength": 32000,
+      "actualContextTokens": 31799,
+      "depthPercent": 50.0,
+      "expected": "eat a sandwich and sit in Dolores Park on a sunny day",
+      "sourceHit": true,
+      "sourceRank": 1,
+      "nativeTailContainsAnswer": true,
+      "nativeFullContextFits": true,
+      "latencyMs": 15,
+      "sources": [
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len32000-depth50/benchmark-official-niah/official-len32000-depth50-99b4616c5708/chunk-0027",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len32000-depth50/benchmark-official-niah/official-len32000-depth50-99b4616c5708/chunk-0024",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len32000-depth50/benchmark-official-niah/official-len32000-depth50-99b4616c5708/chunk-0029",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len32000-depth50/benchmark-official-niah/official-len32000-depth50-99b4616c5708/chunk-0001",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len32000-depth50/benchmark-official-niah/official-len32000-depth50-99b4616c5708/chunk-0030"
+      ],
+      "tokens": 4066
+    },
+    {
+      "id": "official-len32000-depth75",
+      "contextLength": 32000,
+      "actualContextTokens": 31799,
+      "depthPercent": 75.0,
+      "expected": "eat a sandwich and sit in Dolores Park on a sunny day",
+      "sourceHit": true,
+      "sourceRank": 1,
+      "nativeTailContainsAnswer": true,
+      "nativeFullContextFits": true,
+      "latencyMs": 13,
+      "sources": [
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len32000-depth75/benchmark-official-niah/official-len32000-depth75-7908b9a9d7bc/chunk-0040",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len32000-depth75/benchmark-official-niah/official-len32000-depth75-7908b9a9d7bc/chunk-0024",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len32000-depth75/benchmark-official-niah/official-len32000-depth75-7908b9a9d7bc/chunk-0029",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len32000-depth75/benchmark-official-niah/official-len32000-depth75-7908b9a9d7bc/chunk-0001",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len32000-depth75/benchmark-official-niah/official-len32000-depth75-7908b9a9d7bc/chunk-0030"
+      ],
+      "tokens": 4041
+    },
+    {
+      "id": "official-len32000-depth90",
+      "contextLength": 32000,
+      "actualContextTokens": 31799,
+      "depthPercent": 90.0,
+      "expected": "eat a sandwich and sit in Dolores Park on a sunny day",
+      "sourceHit": true,
+      "sourceRank": 1,
+      "nativeTailContainsAnswer": true,
+      "nativeFullContextFits": true,
+      "latencyMs": 12,
+      "sources": [
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len32000-depth90/benchmark-official-niah/official-len32000-depth90-922821564214/chunk-0047",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len32000-depth90/benchmark-official-niah/official-len32000-depth90-922821564214/chunk-0024",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len32000-depth90/benchmark-official-niah/official-len32000-depth90-922821564214/chunk-0029",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len32000-depth90/benchmark-official-niah/official-len32000-depth90-922821564214/chunk-0001",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len32000-depth90/benchmark-official-niah/official-len32000-depth90-922821564214/chunk-0030"
+      ],
+      "tokens": 4044
+    },
+    {
+      "id": "official-len32000-depth100",
+      "contextLength": 32000,
+      "actualContextTokens": 31799,
+      "depthPercent": 100.0,
+      "expected": "eat a sandwich and sit in Dolores Park on a sunny day",
+      "sourceHit": true,
+      "sourceRank": 1,
+      "nativeTailContainsAnswer": true,
+      "nativeFullContextFits": true,
+      "latencyMs": 13,
+      "sources": [
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len32000-depth100/benchmark-official-niah/official-len32000-depth100-5626448fa912/chunk-0053",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len32000-depth100/benchmark-official-niah/official-len32000-depth100-5626448fa912/chunk-0024",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len32000-depth100/benchmark-official-niah/official-len32000-depth100-5626448fa912/chunk-0029",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len32000-depth100/benchmark-official-niah/official-len32000-depth100-5626448fa912/chunk-0001",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len32000-depth100/benchmark-official-niah/official-len32000-depth100-5626448fa912/chunk-0030",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len32000-depth100/benchmark-official-niah/official-len32000-depth100-5626448fa912/chunk-0009"
+      ],
+      "tokens": 4034
+    },
+    {
+      "id": "official-len40000-depth0",
+      "contextLength": 40000,
+      "actualContextTokens": 39800,
+      "depthPercent": 0.0,
+      "expected": "eat a sandwich and sit in Dolores Park on a sunny day",
+      "sourceHit": true,
+      "sourceRank": 1,
+      "nativeTailContainsAnswer": true,
+      "nativeFullContextFits": true,
+      "latencyMs": 20,
+      "sources": [
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len40000-depth0/benchmark-official-niah/official-len40000-depth0-993bf2aa0d24/chunk-0001",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len40000-depth0/benchmark-official-niah/official-len40000-depth0-993bf2aa0d24/chunk-0024",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len40000-depth0/benchmark-official-niah/official-len40000-depth0-993bf2aa0d24/chunk-0029",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len40000-depth0/benchmark-official-niah/official-len40000-depth0-993bf2aa0d24/chunk-0030",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len40000-depth0/benchmark-official-niah/official-len40000-depth0-993bf2aa0d24/chunk-0054"
+      ],
+      "tokens": 4064
+    },
+    {
+      "id": "official-len40000-depth10",
+      "contextLength": 40000,
+      "actualContextTokens": 39799,
+      "depthPercent": 10.0,
+      "expected": "eat a sandwich and sit in Dolores Park on a sunny day",
+      "sourceHit": true,
+      "sourceRank": 1,
+      "nativeTailContainsAnswer": true,
+      "nativeFullContextFits": true,
+      "latencyMs": 13,
+      "sources": [
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len40000-depth10/benchmark-official-niah/official-len40000-depth10-8a461980f3a9/chunk-0007",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len40000-depth10/benchmark-official-niah/official-len40000-depth10-8a461980f3a9/chunk-0024",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len40000-depth10/benchmark-official-niah/official-len40000-depth10-8a461980f3a9/chunk-0029",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len40000-depth10/benchmark-official-niah/official-len40000-depth10-8a461980f3a9/chunk-0001",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len40000-depth10/benchmark-official-niah/official-len40000-depth10-8a461980f3a9/chunk-0030"
+      ],
+      "tokens": 4049
+    },
+    {
+      "id": "official-len40000-depth25",
+      "contextLength": 40000,
+      "actualContextTokens": 39799,
+      "depthPercent": 25.0,
+      "expected": "eat a sandwich and sit in Dolores Park on a sunny day",
+      "sourceHit": true,
+      "sourceRank": 1,
+      "nativeTailContainsAnswer": true,
+      "nativeFullContextFits": true,
+      "latencyMs": 14,
+      "sources": [
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len40000-depth25/benchmark-official-niah/official-len40000-depth25-b9a8c4a31944/chunk-0017",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len40000-depth25/benchmark-official-niah/official-len40000-depth25-b9a8c4a31944/chunk-0024",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len40000-depth25/benchmark-official-niah/official-len40000-depth25-b9a8c4a31944/chunk-0029",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len40000-depth25/benchmark-official-niah/official-len40000-depth25-b9a8c4a31944/chunk-0001",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len40000-depth25/benchmark-official-niah/official-len40000-depth25-b9a8c4a31944/chunk-0030"
+      ],
+      "tokens": 4057
+    },
+    {
+      "id": "official-len40000-depth50",
+      "contextLength": 40000,
+      "actualContextTokens": 39799,
+      "depthPercent": 50.0,
+      "expected": "eat a sandwich and sit in Dolores Park on a sunny day",
+      "sourceHit": true,
+      "sourceRank": 1,
+      "nativeTailContainsAnswer": true,
+      "nativeFullContextFits": true,
+      "latencyMs": 13,
+      "sources": [
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len40000-depth50/benchmark-official-niah/official-len40000-depth50-8c4442b5c9f8/chunk-0033",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len40000-depth50/benchmark-official-niah/official-len40000-depth50-8c4442b5c9f8/chunk-0024",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len40000-depth50/benchmark-official-niah/official-len40000-depth50-8c4442b5c9f8/chunk-0029",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len40000-depth50/benchmark-official-niah/official-len40000-depth50-8c4442b5c9f8/chunk-0001",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len40000-depth50/benchmark-official-niah/official-len40000-depth50-8c4442b5c9f8/chunk-0030"
+      ],
+      "tokens": 4046
+    },
+    {
+      "id": "official-len40000-depth75",
+      "contextLength": 40000,
+      "actualContextTokens": 39799,
+      "depthPercent": 75.0,
+      "expected": "eat a sandwich and sit in Dolores Park on a sunny day",
+      "sourceHit": true,
+      "sourceRank": 1,
+      "nativeTailContainsAnswer": true,
+      "nativeFullContextFits": true,
+      "latencyMs": 14,
+      "sources": [
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len40000-depth75/benchmark-official-niah/official-len40000-depth75-1d8552e6ae83/chunk-0049",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len40000-depth75/benchmark-official-niah/official-len40000-depth75-1d8552e6ae83/chunk-0024",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len40000-depth75/benchmark-official-niah/official-len40000-depth75-1d8552e6ae83/chunk-0029",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len40000-depth75/benchmark-official-niah/official-len40000-depth75-1d8552e6ae83/chunk-0001",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len40000-depth75/benchmark-official-niah/official-len40000-depth75-1d8552e6ae83/chunk-0030"
+      ],
+      "tokens": 4059
+    },
+    {
+      "id": "official-len40000-depth90",
+      "contextLength": 40000,
+      "actualContextTokens": 39799,
+      "depthPercent": 90.0,
+      "expected": "eat a sandwich and sit in Dolores Park on a sunny day",
+      "sourceHit": true,
+      "sourceRank": 1,
+      "nativeTailContainsAnswer": true,
+      "nativeFullContextFits": true,
+      "latencyMs": 21,
+      "sources": [
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len40000-depth90/benchmark-official-niah/official-len40000-depth90-c5342edf25a1/chunk-0059",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len40000-depth90/benchmark-official-niah/official-len40000-depth90-c5342edf25a1/chunk-0024",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len40000-depth90/benchmark-official-niah/official-len40000-depth90-c5342edf25a1/chunk-0029",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len40000-depth90/benchmark-official-niah/official-len40000-depth90-c5342edf25a1/chunk-0001",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len40000-depth90/benchmark-official-niah/official-len40000-depth90-c5342edf25a1/chunk-0030"
+      ],
+      "tokens": 4055
+    },
+    {
+      "id": "official-len40000-depth100",
+      "contextLength": 40000,
+      "actualContextTokens": 39800,
+      "depthPercent": 100.0,
+      "expected": "eat a sandwich and sit in Dolores Park on a sunny day",
+      "sourceHit": true,
+      "sourceRank": 1,
+      "nativeTailContainsAnswer": true,
+      "nativeFullContextFits": true,
+      "latencyMs": 14,
+      "sources": [
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len40000-depth100/benchmark-official-niah/official-len40000-depth100-a5aa1469de10/chunk-0065",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len40000-depth100/benchmark-official-niah/official-len40000-depth100-a5aa1469de10/chunk-0024",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len40000-depth100/benchmark-official-niah/official-len40000-depth100-a5aa1469de10/chunk-0029",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len40000-depth100/benchmark-official-niah/official-len40000-depth100-a5aa1469de10/chunk-0001",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len40000-depth100/benchmark-official-niah/official-len40000-depth100-a5aa1469de10/chunk-0030"
+      ],
+      "tokens": 3854
+    },
+    {
+      "id": "official-len64000-depth0",
+      "contextLength": 64000,
+      "actualContextTokens": 63800,
+      "depthPercent": 0.0,
+      "expected": "eat a sandwich and sit in Dolores Park on a sunny day",
+      "sourceHit": true,
+      "sourceRank": 1,
+      "nativeTailContainsAnswer": false,
+      "nativeFullContextFits": false,
+      "latencyMs": 20,
+      "sources": [
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len64000-depth0/benchmark-official-niah/official-len64000-depth0-22e1cfa6684d/chunk-0001",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len64000-depth0/benchmark-official-niah/official-len64000-depth0-22e1cfa6684d/chunk-0071",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len64000-depth0/benchmark-official-niah/official-len64000-depth0-22e1cfa6684d/chunk-0024",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len64000-depth0/benchmark-official-niah/official-len64000-depth0-22e1cfa6684d/chunk-0093",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len64000-depth0/benchmark-official-niah/official-len64000-depth0-22e1cfa6684d/chunk-0082"
+      ],
+      "tokens": 3848
+    },
+    {
+      "id": "official-len64000-depth10",
+      "contextLength": 64000,
+      "actualContextTokens": 63799,
+      "depthPercent": 10.0,
+      "expected": "eat a sandwich and sit in Dolores Park on a sunny day",
+      "sourceHit": true,
+      "sourceRank": 1,
+      "nativeTailContainsAnswer": false,
+      "nativeFullContextFits": false,
+      "latencyMs": 23,
+      "sources": [
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len64000-depth10/benchmark-official-niah/official-len64000-depth10-8792575ac809/chunk-0012",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len64000-depth10/benchmark-official-niah/official-len64000-depth10-8792575ac809/chunk-0011",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len64000-depth10/benchmark-official-niah/official-len64000-depth10-8792575ac809/chunk-0071",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len64000-depth10/benchmark-official-niah/official-len64000-depth10-8792575ac809/chunk-0024",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len64000-depth10/benchmark-official-niah/official-len64000-depth10-8792575ac809/chunk-0093"
+      ],
+      "tokens": 3753
+    },
+    {
+      "id": "official-len64000-depth25",
+      "contextLength": 64000,
+      "actualContextTokens": 63799,
+      "depthPercent": 25.0,
+      "expected": "eat a sandwich and sit in Dolores Park on a sunny day",
+      "sourceHit": true,
+      "sourceRank": 1,
+      "nativeTailContainsAnswer": false,
+      "nativeFullContextFits": false,
+      "latencyMs": 22,
+      "sources": [
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len64000-depth25/benchmark-official-niah/official-len64000-depth25-38e0b1d40609/chunk-0027",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len64000-depth25/benchmark-official-niah/official-len64000-depth25-38e0b1d40609/chunk-0071",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len64000-depth25/benchmark-official-niah/official-len64000-depth25-38e0b1d40609/chunk-0024",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len64000-depth25/benchmark-official-niah/official-len64000-depth25-38e0b1d40609/chunk-0093",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len64000-depth25/benchmark-official-niah/official-len64000-depth25-38e0b1d40609/chunk-0082"
+      ],
+      "tokens": 3853
+    },
+    {
+      "id": "official-len64000-depth50",
+      "contextLength": 64000,
+      "actualContextTokens": 63799,
+      "depthPercent": 50.0,
+      "expected": "eat a sandwich and sit in Dolores Park on a sunny day",
+      "sourceHit": true,
+      "sourceRank": 1,
+      "nativeTailContainsAnswer": true,
+      "nativeFullContextFits": false,
+      "latencyMs": 23,
+      "sources": [
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len64000-depth50/benchmark-official-niah/official-len64000-depth50-902d30301a44/chunk-0053",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len64000-depth50/benchmark-official-niah/official-len64000-depth50-902d30301a44/chunk-0071",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len64000-depth50/benchmark-official-niah/official-len64000-depth50-902d30301a44/chunk-0024",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len64000-depth50/benchmark-official-niah/official-len64000-depth50-902d30301a44/chunk-0093",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len64000-depth50/benchmark-official-niah/official-len64000-depth50-902d30301a44/chunk-0082"
+      ],
+      "tokens": 3593
+    },
+    {
+      "id": "official-len64000-depth75",
+      "contextLength": 64000,
+      "actualContextTokens": 63799,
+      "depthPercent": 75.0,
+      "expected": "eat a sandwich and sit in Dolores Park on a sunny day",
+      "sourceHit": true,
+      "sourceRank": 1,
+      "nativeTailContainsAnswer": true,
+      "nativeFullContextFits": false,
+      "latencyMs": 20,
+      "sources": [
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len64000-depth75/benchmark-official-niah/official-len64000-depth75-887ce04e6c1e/chunk-0078",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len64000-depth75/benchmark-official-niah/official-len64000-depth75-887ce04e6c1e/chunk-0071",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len64000-depth75/benchmark-official-niah/official-len64000-depth75-887ce04e6c1e/chunk-0024",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len64000-depth75/benchmark-official-niah/official-len64000-depth75-887ce04e6c1e/chunk-0093",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len64000-depth75/benchmark-official-niah/official-len64000-depth75-887ce04e6c1e/chunk-0029"
+      ],
+      "tokens": 3834
+    },
+    {
+      "id": "official-len64000-depth90",
+      "contextLength": 64000,
+      "actualContextTokens": 63799,
+      "depthPercent": 90.0,
+      "expected": "eat a sandwich and sit in Dolores Park on a sunny day",
+      "sourceHit": true,
+      "sourceRank": 1,
+      "nativeTailContainsAnswer": true,
+      "nativeFullContextFits": false,
+      "latencyMs": 20,
+      "sources": [
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len64000-depth90/benchmark-official-niah/official-len64000-depth90-d4e655f4467f/chunk-0094",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len64000-depth90/benchmark-official-niah/official-len64000-depth90-d4e655f4467f/chunk-0071",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len64000-depth90/benchmark-official-niah/official-len64000-depth90-d4e655f4467f/chunk-0024",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len64000-depth90/benchmark-official-niah/official-len64000-depth90-d4e655f4467f/chunk-0093",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len64000-depth90/benchmark-official-niah/official-len64000-depth90-d4e655f4467f/chunk-0082"
+      ],
+      "tokens": 3847
+    },
+    {
+      "id": "official-len64000-depth100",
+      "contextLength": 64000,
+      "actualContextTokens": 63799,
+      "depthPercent": 100.0,
+      "expected": "eat a sandwich and sit in Dolores Park on a sunny day",
+      "sourceHit": true,
+      "sourceRank": 1,
+      "nativeTailContainsAnswer": true,
+      "nativeFullContextFits": false,
+      "latencyMs": 24,
+      "sources": [
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len64000-depth100/benchmark-official-niah/official-len64000-depth100-76af0f9e0f19/chunk-0104",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len64000-depth100/benchmark-official-niah/official-len64000-depth100-76af0f9e0f19/chunk-0071",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len64000-depth100/benchmark-official-niah/official-len64000-depth100-76af0f9e0f19/chunk-0024",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len64000-depth100/benchmark-official-niah/official-len64000-depth100-76af0f9e0f19/chunk-0093",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len64000-depth100/benchmark-official-niah/official-len64000-depth100-76af0f9e0f19/chunk-0082"
+      ],
+      "tokens": 3628
+    },
+    {
+      "id": "official-len128000-depth0",
+      "contextLength": 128000,
+      "actualContextTokens": 127800,
+      "depthPercent": 0.0,
+      "expected": "eat a sandwich and sit in Dolores Park on a sunny day",
+      "sourceHit": true,
+      "sourceRank": 1,
+      "nativeTailContainsAnswer": false,
+      "nativeFullContextFits": false,
+      "latencyMs": 45,
+      "sources": [
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len128000-depth0/benchmark-official-niah/official-len128000-depth0-84c8bbe9cc67/chunk-0001",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len128000-depth0/benchmark-official-niah/official-len128000-depth0-84c8bbe9cc67/chunk-0151",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len128000-depth0/benchmark-official-niah/official-len128000-depth0-84c8bbe9cc67/chunk-0154",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len128000-depth0/benchmark-official-niah/official-len128000-depth0-84c8bbe9cc67/chunk-0155",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len128000-depth0/benchmark-official-niah/official-len128000-depth0-84c8bbe9cc67/chunk-0179"
+      ],
+      "tokens": 4083
+    },
+    {
+      "id": "official-len128000-depth10",
+      "contextLength": 128000,
+      "actualContextTokens": 127799,
+      "depthPercent": 10.0,
+      "expected": "eat a sandwich and sit in Dolores Park on a sunny day",
+      "sourceHit": true,
+      "sourceRank": 1,
+      "nativeTailContainsAnswer": false,
+      "nativeFullContextFits": false,
+      "latencyMs": 39,
+      "sources": [
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len128000-depth10/benchmark-official-niah/official-len128000-depth10-3f3dfd5ac881/chunk-0022",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len128000-depth10/benchmark-official-niah/official-len128000-depth10-3f3dfd5ac881/chunk-0151",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len128000-depth10/benchmark-official-niah/official-len128000-depth10-3f3dfd5ac881/chunk-0154",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len128000-depth10/benchmark-official-niah/official-len128000-depth10-3f3dfd5ac881/chunk-0155",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len128000-depth10/benchmark-official-niah/official-len128000-depth10-3f3dfd5ac881/chunk-0179"
+      ],
+      "tokens": 4081
+    },
+    {
+      "id": "official-len128000-depth25",
+      "contextLength": 128000,
+      "actualContextTokens": 127799,
+      "depthPercent": 25.0,
+      "expected": "eat a sandwich and sit in Dolores Park on a sunny day",
+      "sourceHit": true,
+      "sourceRank": 1,
+      "nativeTailContainsAnswer": false,
+      "nativeFullContextFits": false,
+      "latencyMs": 43,
+      "sources": [
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len128000-depth25/benchmark-official-niah/official-len128000-depth25-759b6568e817/chunk-0053",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len128000-depth25/benchmark-official-niah/official-len128000-depth25-759b6568e817/chunk-0151",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len128000-depth25/benchmark-official-niah/official-len128000-depth25-759b6568e817/chunk-0154",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len128000-depth25/benchmark-official-niah/official-len128000-depth25-759b6568e817/chunk-0155",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len128000-depth25/benchmark-official-niah/official-len128000-depth25-759b6568e817/chunk-0179"
+      ],
+      "tokens": 3827
+    },
+    {
+      "id": "official-len128000-depth50",
+      "contextLength": 128000,
+      "actualContextTokens": 127799,
+      "depthPercent": 50.0,
+      "expected": "eat a sandwich and sit in Dolores Park on a sunny day",
+      "sourceHit": true,
+      "sourceRank": 1,
+      "nativeTailContainsAnswer": false,
+      "nativeFullContextFits": false,
+      "latencyMs": 42,
+      "sources": [
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len128000-depth50/benchmark-official-niah/official-len128000-depth50-76f281d08e73/chunk-0104",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len128000-depth50/benchmark-official-niah/official-len128000-depth50-76f281d08e73/chunk-0151",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len128000-depth50/benchmark-official-niah/official-len128000-depth50-76f281d08e73/chunk-0154",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len128000-depth50/benchmark-official-niah/official-len128000-depth50-76f281d08e73/chunk-0155",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len128000-depth50/benchmark-official-niah/official-len128000-depth50-76f281d08e73/chunk-0179"
+      ],
+      "tokens": 4093
+    },
+    {
+      "id": "official-len128000-depth75",
+      "contextLength": 128000,
+      "actualContextTokens": 127799,
+      "depthPercent": 75.0,
+      "expected": "eat a sandwich and sit in Dolores Park on a sunny day",
+      "sourceHit": true,
+      "sourceRank": 1,
+      "nativeTailContainsAnswer": true,
+      "nativeFullContextFits": false,
+      "latencyMs": 45,
+      "sources": [
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len128000-depth75/benchmark-official-niah/official-len128000-depth75-115d054b855f/chunk-0156",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len128000-depth75/benchmark-official-niah/official-len128000-depth75-115d054b855f/chunk-0151",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len128000-depth75/benchmark-official-niah/official-len128000-depth75-115d054b855f/chunk-0154",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len128000-depth75/benchmark-official-niah/official-len128000-depth75-115d054b855f/chunk-0155",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len128000-depth75/benchmark-official-niah/official-len128000-depth75-115d054b855f/chunk-0179"
+      ],
+      "tokens": 4088
+    },
+    {
+      "id": "official-len128000-depth90",
+      "contextLength": 128000,
+      "actualContextTokens": 127799,
+      "depthPercent": 90.0,
+      "expected": "eat a sandwich and sit in Dolores Park on a sunny day",
+      "sourceHit": true,
+      "sourceRank": 1,
+      "nativeTailContainsAnswer": true,
+      "nativeFullContextFits": false,
+      "latencyMs": 41,
+      "sources": [
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len128000-depth90/benchmark-official-niah/official-len128000-depth90-0d1826313c6d/chunk-0187",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len128000-depth90/benchmark-official-niah/official-len128000-depth90-0d1826313c6d/chunk-0151",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len128000-depth90/benchmark-official-niah/official-len128000-depth90-0d1826313c6d/chunk-0154",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len128000-depth90/benchmark-official-niah/official-len128000-depth90-0d1826313c6d/chunk-0155",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len128000-depth90/benchmark-official-niah/official-len128000-depth90-0d1826313c6d/chunk-0179"
+      ],
+      "tokens": 4084
+    },
+    {
+      "id": "official-len128000-depth100",
+      "contextLength": 128000,
+      "actualContextTokens": 127799,
+      "depthPercent": 100.0,
+      "expected": "eat a sandwich and sit in Dolores Park on a sunny day",
+      "sourceHit": true,
+      "sourceRank": 1,
+      "nativeTailContainsAnswer": true,
+      "nativeFullContextFits": false,
+      "latencyMs": 42,
+      "sources": [
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len128000-depth100/benchmark-official-niah/official-len128000-depth100-2893223960ec/chunk-0207",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len128000-depth100/benchmark-official-niah/official-len128000-depth100-2893223960ec/chunk-0151",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len128000-depth100/benchmark-official-niah/official-len128000-depth100-2893223960ec/chunk-0154",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len128000-depth100/benchmark-official-niah/official-len128000-depth100-2893223960ec/chunk-0155",
+        "openclaw/benchmark/official-niah/official-compatible-128k-grid/official-len128000-depth100/benchmark-official-niah/official-len128000-depth100-2893223960ec/chunk-0179"
+      ],
+      "tokens": 3697
+    }
+  ],
+  "runId": "official-compatible-128k-grid",
+  "tokenizer": "tiktoken:cl100k_base",
+  "grid": {
+    "contextLengths": [
+      4000,
+      8000,
+      16000,
+      32000,
+      40000,
+      64000,
+      128000
+    ],
+    "depthPercents": [
+      0.0,
+      10.0,
+      25.0,
+      50.0,
+      75.0,
+      90.0,
+      100.0
+    ],
+    "finalContextLengthBuffer": 200
+  },
+  "needle": "The best thing to do in San Francisco is eat a sandwich and sit in Dolores Park on a sunny day.",
+  "retrievalQuestion": "What is the best thing to do in San Francisco?",
+  "haystack": {
+    "source": "external",
+    "directory": "needlehaystack/PaulGrahamEssays",
+    "note": "Official Paul Graham essay corpus is loaded from the --haystack-dir local clone; it is not vendored here."
+  }
+}

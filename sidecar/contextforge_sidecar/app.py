@@ -18,7 +18,7 @@ from pydantic import BaseModel, Field
 from contextforge.index import MemoryIndex, SearchResult
 from contextforge.loader import ProactiveLoader
 from contextforge.tree import KnowledgeTree, _SCHEMA
-from contextforge.utils import chunk_text, estimate_tokens
+from contextforge.utils import estimate_tokens, extract_keywords
 
 
 DEFAULT_EXTENSIONS = {
@@ -38,6 +38,32 @@ DEFAULT_EXTENSIONS = {
     ".toml",
     ".cfg",
     ".ini",
+}
+
+QUESTION_LEADERS = {
+    "what",
+    "which",
+    "where",
+    "when",
+    "who",
+    "whom",
+    "whose",
+    "why",
+    "how",
+    "is",
+    "are",
+    "was",
+    "were",
+    "do",
+    "does",
+    "did",
+    "can",
+    "could",
+    "should",
+    "would",
+    "the",
+    "a",
+    "an",
 }
 
 
@@ -168,6 +194,61 @@ def _title_from_text(text: str) -> str:
     return first_line[:80]
 
 
+def _normalize_phrase_text(value: str) -> str:
+    normalized = re.sub(r"[^a-z0-9]+", " ", value.lower())
+    return re.sub(r"\s+", " ", normalized).strip()
+
+
+def _query_phrase_candidates(query: str) -> list[str]:
+    normalized = _normalize_phrase_text(query)
+    if not normalized:
+        return []
+
+    candidates = [normalized]
+    words = normalized.split()
+    while words and words[0] in QUESTION_LEADERS:
+        words = words[1:]
+        candidate = " ".join(words)
+        if len(candidate.split()) >= 2:
+            candidates.append(candidate)
+
+    unique_candidates: list[str] = []
+    for candidate in candidates:
+        if candidate not in unique_candidates:
+            unique_candidates.append(candidate)
+    return unique_candidates
+
+
+def _chunk_text_lossless(text: str, max_tokens: int = 512, overlap: int = 64) -> list[str]:
+    if not text:
+        return []
+
+    max_chars = max(1, int(max_tokens * 4.0))
+    overlap_chars = max(0, min(int(overlap * 4.0), max_chars - 1))
+    chunks: list[str] = []
+    start = 0
+
+    while start < len(text):
+        target_end = min(len(text), start + max_chars)
+        end = target_end
+        if target_end < len(text):
+            window = text[start:target_end]
+            for separator in ("\n\n", "\n", ". ", "! ", "? ", " "):
+                split_at = window.rfind(separator)
+                if split_at > max_chars // 2:
+                    end = start + split_at + len(separator)
+                    break
+
+        chunk = text[start:end].strip()
+        if chunk:
+            chunks.append(chunk)
+        if end >= len(text):
+            break
+        start = max(start + 1, end - overlap_chars)
+
+    return chunks
+
+
 class SidecarKnowledgeTree(KnowledgeTree):
     def open(self) -> None:
         self._conn = sqlite3.connect(self._db_path, check_same_thread=False)
@@ -267,7 +348,7 @@ class ContextForgeStore:
             return []
         clean_title = (title or _title_from_text(clean_text)).strip()[:120]
         clean_category = _safe_segment(category, "openclaw")
-        chunks = chunk_text(clean_text, max_tokens=self.settings.max_node_tokens, overlap=64)
+        chunks = _chunk_text_lossless(clean_text, max_tokens=self.settings.max_node_tokens, overlap=64)
         if len(chunks) <= 1:
             return [
                 self._store_node(
@@ -386,6 +467,12 @@ class ContextForgeStore:
 
         with self._lock:
             results = self.index.search(combined_query, top_k=max(self.index.num_docs, limit * 20, 100))
+            results = self._augment_results_with_phrase_scan(
+                results,
+                combined_query,
+                namespace_prefix,
+                request.category,
+            )
             selected = self._select_results(results, namespace_prefix, request.category, max_tokens, limit)
             context, sources, tokens = self._assemble(selected, max_tokens)
 
@@ -395,6 +482,66 @@ class ContextForgeStore:
             totalTokens=tokens,
             latencyMs=int((time.perf_counter() - started) * 1000),
         )
+
+    def _augment_results_with_phrase_scan(
+        self,
+        results: list[SearchResult],
+        query: str,
+        namespace_prefix: str,
+        category: str | None,
+    ) -> list[SearchResult]:
+        query_terms = extract_keywords(query, top_k=15)
+        phrase_candidates = _query_phrase_candidates(query)
+        if not query_terms and not phrase_candidates:
+            return results
+
+        rows = self.tree.conn.execute(
+            """
+            SELECT id, path, title, category, content
+            FROM knowledge_nodes
+            WHERE path LIKE ?
+            """,
+            (f"{namespace_prefix}%",),
+        ).fetchall()
+        phrase_results: list[SearchResult] = []
+        for node_id, path, title, node_category, content in rows:
+            if category and node_category != category:
+                continue
+            normalized_content = _normalize_phrase_text(str(content))
+            content_words = set(normalized_content.split())
+            matched_terms = [term for term in query_terms if term in content_words]
+            phrase_hits = [
+                phrase for phrase in phrase_candidates if phrase and phrase in normalized_content
+            ]
+            if not matched_terms and not phrase_hits:
+                continue
+
+            unique_terms = sorted(set(matched_terms))
+            score = float(len(unique_terms) * 25)
+            if query_terms and len(unique_terms) == len(set(query_terms)):
+                score += 100.0
+            score += float(len(phrase_hits) * 500)
+
+            phrase_results.append(
+                SearchResult(
+                    node_id=int(node_id),
+                    path=str(path),
+                    title=str(title),
+                    category=str(node_category),
+                    score=score,
+                    matched_terms=unique_terms + phrase_hits,
+                )
+            )
+
+        if not phrase_results:
+            return results
+
+        merged: dict[str, SearchResult] = {result.path: result for result in results}
+        for result in phrase_results:
+            existing = merged.get(result.path)
+            if not existing or result.score > existing.score:
+                merged[result.path] = result
+        return sorted(merged.values(), key=lambda result: -result.score)
 
     def _select_results(
         self,

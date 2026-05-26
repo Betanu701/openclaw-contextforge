@@ -4,7 +4,7 @@ from pathlib import Path
 
 from fastapi.testclient import TestClient
 
-from contextforge_sidecar.app import Settings, create_app
+from contextforge_sidecar.app import Settings, _chunk_text_lossless, create_app
 
 
 def make_client(
@@ -155,3 +155,46 @@ def test_ingest_chunks_large_text_and_recall_stays_bounded(tmp_path: Path) -> No
     payload = recalled.json()
     assert "ORCHID-424242" in payload["context"]
     assert payload["totalTokens"] <= 180
+
+
+def test_lossless_chunking_preserves_text_near_sentence_boundaries() -> None:
+    text = ("a" * 1790) + ". " + ("x" * 400) + "DO-NOT-DROP-MARKER" + ("y" * 1200)
+    chunks = _chunk_text_lossless(text, max_tokens=768, overlap=64)
+    assert "DO-NOT-DROP-MARKER" in "\n".join(chunks)
+
+
+def test_recall_phrase_scan_finds_official_niah_style_answer(tmp_path: Path) -> None:
+    client = make_client(tmp_path, max_context_tokens=220, max_node_tokens=80)
+    filler = (
+        "San Francisco archive filler says this thing is best treated as unrelated. "
+        "It has no Dolores Park sandwich answer.\n"
+    ) * 80
+    needle = (
+        "\nThe best thing to do in San Francisco is eat a sandwich and sit in Dolores Park "
+        "on a sunny day.\n"
+    )
+    ingested = client.post(
+        "/ingest",
+        json={
+            "namespace": namespace("openclaw/test/official-niah"),
+            "text": filler + needle + filler,
+            "title": "Official NIAH style document",
+            "category": "benchmark-official-niah",
+        },
+    )
+    assert ingested.status_code == 200
+
+    recalled = client.post(
+        "/recall",
+        json={
+            "namespace": namespace("openclaw/test/official-niah"),
+            "query": "What is the best thing to do in San Francisco?",
+            "category": "benchmark-official-niah",
+            "maxTokens": 220,
+            "limit": 2,
+        },
+    )
+    assert recalled.status_code == 200
+    payload = recalled.json()
+    assert "eat a sandwich and sit in Dolores Park on a sunny day" in payload["context"]
+    assert payload["totalTokens"] <= 220
