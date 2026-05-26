@@ -50,6 +50,37 @@ Then configure OpenClaw:
 }
 ```
 
+## Installing from GitHub
+
+Publishing is not required for OpenClaw to load this plugin. Clone the private repo, build it, and point OpenClaw at the local checkout:
+
+```bash
+git clone git@github.com:Betanu701/openclaw-contextforge.git
+cd openclaw-contextforge
+npm install
+npm run build
+```
+
+On Windows, the plugin path in OpenClaw should be the cloned folder, for example:
+
+```json5
+{
+  plugins: {
+    load: { paths: ["C:/Users/you/src/openclaw-contextforge"] },
+    entries: {
+      contextforge: {
+        enabled: true,
+        hooks: { allowPromptInjection: true, allowConversationAccess: true },
+        config: { serviceUrl: "http://192.168.3.8:8765" }
+      }
+    },
+    slots: { memory: "contextforge" }
+  }
+}
+```
+
+Publish later only if you want one-command installation from npm or GitHub Packages.
+
 ## Overwatch compose
 
 ```bash
@@ -95,5 +126,18 @@ python3 benchmarks/needle_haystack.py conversation \
 ```
 
 This builds a roughly 1.2M-token transcript with most needles in the first 10 turns and a small control set near the end. The report compares ContextForge source-hit accuracy against whether each answer is still visible in a native recent-context window.
+
+Current benchmark result is committed at `benchmarks/results/conversation-large-100x12k.json`:
+
+| Metric | Result |
+| --- | ---: |
+| Transcript size | 1,200,300 estimated tokens |
+| Turns | 100 |
+| Tokens per turn | 12,000 |
+| Needles | 12 |
+| ContextForge chunks | 3,085 |
+| Recall budget | 4,096 tokens |
+| ContextForge source hits | 12/12 |
+| Native 40,960-token window visibility | 2/12 |
 
 For model comparisons, keep the same OpenClaw model/provider for baseline and ContextForge-enabled runs, disable other memory plugins, and report retrieval source-hit rate, answer accuracy, and latency separately.

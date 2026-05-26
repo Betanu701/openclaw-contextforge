@@ -7,5 +7,5 @@ __pycache__/
 .venv/
 .env
 contextforge.db*
-benchmarks/results/
-
+benchmarks/results/*
+!benchmarks/results/conversation-large-100x12k.json

@@ -1,0 +1,261 @@
+{
+  "mode": "contextforge-conversation-decay",
+  "namespace": "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384",
+  "dataset": {
+    "id": "conversation-seed701-turns100-tpt12000",
+    "turns": 100,
+    "tokensPerTurn": 12000,
+    "targetTokens": 1200000,
+    "estimatedTokens": 1200300,
+    "earlyTurns": 10,
+    "controlNeedles": 2
+  },
+  "ingest": {
+    "count": 3085,
+    "idsPreview": [
+      "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-0001",
+      "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-0002",
+      "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-0003",
+      "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-0004",
+      "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-0005"
+    ],
+    "latencyMs": 47423
+  },
+  "recallMaxTokens": 4096,
+  "nativeWindowTokens": 40960,
+  "contextForgeAccuracy": 1.0,
+  "nativeWindowVisibility": 0.16666666666666666,
+  "correct": 12,
+  "nativeVisible": 2,
+  "total": 12,
+  "rows": [
+    {
+      "key": "project-0",
+      "placement": "early",
+      "turnIndex": 0,
+      "expected": "GAMMA-623615",
+      "sourceHit": true,
+      "sourceRank": 1,
+      "nativeWindowContainsAnswer": false,
+      "latencyMs": 1,
+      "sources": [
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-0031",
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-0032",
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-0216",
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-0124",
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-0309",
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-3085"
+      ],
+      "tokens": 3800
+    },
+    {
+      "key": "vault-1",
+      "placement": "early",
+      "turnIndex": 1,
+      "expected": "ALPHA-216407",
+      "sourceHit": true,
+      "sourceRank": 1,
+      "nativeWindowContainsAnswer": false,
+      "latencyMs": 41,
+      "sources": [
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-0062",
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-0063",
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-3053",
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-0155",
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-0247",
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-3085"
+      ],
+      "tokens": 3801
+    },
+    {
+      "key": "agent-2",
+      "placement": "early",
+      "turnIndex": 2,
+      "expected": "BETA-659248",
+      "sourceHit": true,
+      "sourceRank": 2,
+      "nativeWindowContainsAnswer": false,
+      "latencyMs": 1,
+      "sources": [
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-3085",
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-0093",
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-0094",
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-3084",
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-0278",
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-0186"
+      ],
+      "tokens": 3859
+    },
+    {
+      "key": "project-3",
+      "placement": "early",
+      "turnIndex": 3,
+      "expected": "BETA-592580",
+      "sourceHit": true,
+      "sourceRank": 1,
+      "nativeWindowContainsAnswer": false,
+      "latencyMs": 0,
+      "sources": [
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-0124",
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-0125",
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-0031",
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-0216",
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-0309",
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-3085"
+      ],
+      "tokens": 3799
+    },
+    {
+      "key": "vault-4",
+      "placement": "early",
+      "turnIndex": 4,
+      "expected": "ALPHA-401635",
+      "sourceHit": true,
+      "sourceRank": 1,
+      "nativeWindowContainsAnswer": false,
+      "latencyMs": 27,
+      "sources": [
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-0155",
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-0156",
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-3053",
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-0062",
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-0247",
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-3085"
+      ],
+      "tokens": 3802
+    },
+    {
+      "key": "agent-5",
+      "placement": "early",
+      "turnIndex": 5,
+      "expected": "BETA-733873",
+      "sourceHit": true,
+      "sourceRank": 2,
+      "nativeWindowContainsAnswer": false,
+      "latencyMs": 1,
+      "sources": [
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-3085",
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-0186",
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-0093",
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-3084",
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-0278",
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-0279"
+      ],
+      "tokens": 3859
+    },
+    {
+      "key": "project-6",
+      "placement": "early",
+      "turnIndex": 6,
+      "expected": "ALPHA-262038",
+      "sourceHit": true,
+      "sourceRank": 1,
+      "nativeWindowContainsAnswer": false,
+      "latencyMs": 0,
+      "sources": [
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-0216",
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-0217",
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-0031",
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-0124",
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-0309",
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-3085"
+      ],
+      "tokens": 3799
+    },
+    {
+      "key": "vault-7",
+      "placement": "early",
+      "turnIndex": 7,
+      "expected": "DELTA-146284",
+      "sourceHit": true,
+      "sourceRank": 1,
+      "nativeWindowContainsAnswer": false,
+      "latencyMs": 31,
+      "sources": [
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-0247",
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-0248",
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-3053",
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-0155",
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-0062",
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-3085"
+      ],
+      "tokens": 3801
+    },
+    {
+      "key": "agent-8",
+      "placement": "early",
+      "turnIndex": 8,
+      "expected": "GAMMA-554601",
+      "sourceHit": true,
+      "sourceRank": 2,
+      "nativeWindowContainsAnswer": false,
+      "latencyMs": 2,
+      "sources": [
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-3085",
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-0278",
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-0279",
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-0093",
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-3084",
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-0186"
+      ],
+      "tokens": 3859
+    },
+    {
+      "key": "project-9",
+      "placement": "early",
+      "turnIndex": 9,
+      "expected": "GAMMA-446450",
+      "sourceHit": true,
+      "sourceRank": 1,
+      "nativeWindowContainsAnswer": false,
+      "latencyMs": 1,
+      "sources": [
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-0309",
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-0310",
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-0031",
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-0216",
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-0124",
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-3085"
+      ],
+      "tokens": 3800
+    },
+    {
+      "key": "vault-10",
+      "placement": "control",
+      "turnIndex": 98,
+      "expected": "GAMMA-424726",
+      "sourceHit": true,
+      "sourceRank": 1,
+      "nativeWindowContainsAnswer": true,
+      "latencyMs": 28,
+      "sources": [
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-3053",
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-3054",
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-0155",
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-0062",
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-0247",
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-3085"
+      ],
+      "tokens": 3801
+    },
+    {
+      "key": "agent-11",
+      "placement": "control",
+      "turnIndex": 99,
+      "expected": "ALPHA-955333",
+      "sourceHit": true,
+      "sourceRank": 1,
+      "nativeWindowContainsAnswer": true,
+      "latencyMs": 1,
+      "sources": [
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-3085",
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-3084",
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-0093",
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-0278",
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-0186",
+        "openclaw/benchmark/conversation-large/turn100-tpt12000-1779824384/benchmark-conversation/conversation-seed701-turns100-tpt12000-5d8205392f0b/chunk-0279"
+      ],
+      "tokens": 3859
+    }
+  ]
+}
