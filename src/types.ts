@@ -1,6 +1,10 @@
+export type ContextForgeMode = "off" | "contextforge" | "hybrid";
+
 export type ContextForgeConfig = {
   serviceUrl: string;
   namespacePrefix: string;
+  mode: ContextForgeMode;
+  budgetRatio: number;
   autoRecall: boolean;
   autoCapture: boolean;
   recallMaxTokens: number;
@@ -64,6 +68,37 @@ export type RememberResponse = {
   tokens: number;
 };
 
+export type PrepareContextRequest = {
+  namespace: ContextForgeNamespace;
+  query: string;
+  maxContextTokens?: number;
+};
+
+export type PreparedContext = {
+  context: string;
+  sources: ContextForgeSource[];
+  totalTokens: number;
+  latencyMs: number;
+};
+
+export type RecordTurnRequest = {
+  namespace: ContextForgeNamespace;
+  success: boolean;
+  latestUserText?: string;
+  runId?: string;
+};
+
+export type LongTermContextPlugin = {
+  prepareContext(
+    request: PrepareContextRequest,
+    signal?: AbortSignal,
+  ): Promise<PreparedContext | undefined>;
+  recordTurn(
+    request: RecordTurnRequest,
+    signal?: AbortSignal,
+  ): Promise<RememberResponse | undefined>;
+};
+
 export type IngestRequest = {
   namespace: ContextForgeNamespace;
   text?: string;
@@ -100,4 +135,3 @@ export type StatsResponse = {
   categories: Record<string, number>;
   cache: Record<string, unknown>;
 };
-

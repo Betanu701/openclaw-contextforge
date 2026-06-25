@@ -2,12 +2,29 @@
 
 OpenClaw ContextForge is an external OpenClaw memory plugin plus a Python HTTP sidecar that gives OpenClaw access to ContextForge hierarchical memory without patching OpenClaw core.
 
+ContextForge is an opt-in long-term context provider for this plugin. It decides what long-term context to supply through a narrow retrieval/writeback contract; it does not chat directly with the model.
+
 ## Architecture
 
 - OpenClaw loads the `contextforge` plugin as the active `plugins.slots.memory` implementation.
-- The TypeScript plugin calls a local sidecar during `before_prompt_build` and injects bounded, delimited memory context.
+- The TypeScript plugin calls a local sidecar during `before_prompt_build` and injects bounded, delimited, explicitly untrusted memory context.
 - Explicit memory capture happens through `contextforge_remember` or user turns containing phrases such as `remember this`.
 - The sidecar stores namespaced ContextForge nodes in SQLite and filters recall by OpenClaw session/user/channel namespace.
+
+## Plugin contract and configuration
+
+Automatic long-term context behavior is controlled by `config.mode`:
+
+- `off`: disable automatic ContextForge recall and automatic writeback, while keeping the explicit `contextforge_*` tools available.
+- `contextforge`: ContextForge owns automatic long-term retrieval and writeback for this plugin.
+- `hybrid`: reserved for coexistence with another memory provider; it currently behaves like `contextforge` while preserving the explicit mode value.
+
+Automatic recall uses a narrow contract:
+
+- `prepareContext(...)`: retrieval, ranking, compression, and budgeting before prompt assembly.
+- `recordTurn(...)`: writeback after a completed turn.
+
+When OpenClaw supplies a larger `maxContextTokens` budget, ContextForge uses `budgetRatio` to reserve only a fraction of that budget for automatic recall, and it still caps the final recall size at `recallMaxTokens`.
 
 ## Local development
 
@@ -40,7 +57,11 @@ Then configure OpenClaw:
       contextforge: {
         enabled: true,
         hooks: { allowPromptInjection: true, allowConversationAccess: true },
-        config: { serviceUrl: "http://localhost:8765" }
+        config: {
+          serviceUrl: "http://localhost:8765",
+          mode: "contextforge",
+          budgetRatio: 0.25
+        }
       },
       "memory-lancedb": { enabled: false },
       "active-memory": { enabled: false }
@@ -71,7 +92,11 @@ On Windows, the plugin path in OpenClaw should be the cloned folder, for example
       contextforge: {
         enabled: true,
         hooks: { allowPromptInjection: true, allowConversationAccess: true },
-        config: { serviceUrl: "http://192.168.3.8:8765" }
+        config: {
+          serviceUrl: "http://192.168.3.8:8765",
+          mode: "contextforge",
+          budgetRatio: 0.25
+        }
       }
     },
     slots: { memory: "contextforge" }
@@ -98,6 +123,13 @@ Useful sidecar environment variables:
 | `CONTEXTFORGE_MAX_CONTEXT_TOKENS` | `4096` | Maximum recall context returned by the sidecar. |
 | `CONTEXTFORGE_MAX_NODE_TOKENS` | `768` | Ingest-time chunk size so large documents are indexed as retrievable snippets instead of one oversized node. |
 | `CONTEXTFORGE_INGEST_ROOT` | unset | Required root directory for path ingestion. |
+
+Useful plugin config values:
+
+| Setting | Default | Purpose |
+| --- | --- | --- |
+| `mode` | `contextforge` | Controls whether automatic long-term recall/writeback is off, ContextForge-managed, or explicitly marked hybrid. |
+| `budgetRatio` | `0.25` | Fraction of `maxContextTokens` reserved for automatic recall before capping at `recallMaxTokens`. |
 
 ## Benchmark
 

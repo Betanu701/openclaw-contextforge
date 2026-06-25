@@ -27,6 +27,16 @@
       "placeholder": "http://contextforge:8765",
       "help": "HTTP URL for the ContextForge sidecar"
     },
+    "mode": {
+      "label": "Long-term context mode",
+      "help": "off disables automatic recall/writeback, contextforge enables ContextForge-managed long-term context, hybrid preserves the explicit hybrid mode value"
+    },
+    "budgetRatio": {
+      "label": "Context budget ratio",
+      "placeholder": "0.25",
+      "advanced": true,
+      "help": "Fraction of the available prompt context budget reserved for automatic ContextForge recall, capped by recallMaxTokens"
+    },
     "namespacePrefix": {
       "label": "Namespace prefix",
       "placeholder": "openclaw",
@@ -83,6 +93,19 @@
       "serviceUrl": {
         "type": "string"
       },
+      "mode": {
+        "type": "string",
+        "enum": [
+          "off",
+          "contextforge",
+          "hybrid"
+        ]
+      },
+      "budgetRatio": {
+        "type": "number",
+        "minimum": 0.01,
+        "maximum": 1
+      },
       "namespacePrefix": {
         "type": "string"
       },
@@ -132,4 +155,3 @@
     }
   }
 }
-

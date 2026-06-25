@@ -7,6 +7,10 @@ import type {
   ContextForgeConfig,
   ContextForgeNamespace,
   ContextForgeSource,
+  LongTermContextPlugin,
+  PreparedContext,
+  PrepareContextRequest,
+  RecordTurnRequest,
 } from "./types.js";
 
 type RuntimeContext = {
@@ -69,6 +73,19 @@ function extractLatestUserText(messages: unknown[] | undefined): string | undefi
 function normalizeText(text: string, maxChars: number): string {
   const normalized = text.replace(/\s+/g, " ").trim();
   return normalized.length > maxChars ? normalized.slice(0, maxChars).trimEnd() : normalized;
+}
+
+function resolveRecallTokenBudget(
+  request: PrepareContextRequest,
+  cfg: ContextForgeConfig,
+): number {
+  const baseBudget =
+    typeof request.maxContextTokens === "number" &&
+    Number.isFinite(request.maxContextTokens) &&
+    request.maxContextTokens > 0
+      ? request.maxContextTokens
+      : cfg.recallMaxTokens;
+  return Math.max(1, Math.min(cfg.recallMaxTokens, Math.floor(baseBudget * cfg.budgetRatio)));
 }
 
 function cleanNamespaceSegment(value: string | undefined): string | undefined {
@@ -198,6 +215,85 @@ function extractExplicitMemory(text: string | undefined, cfg: ContextForgeConfig
   const afterTrigger = normalized.slice(triggerIndex + trigger.length).replace(/^[:\s-]+/, "").trim();
   const candidate = afterTrigger || normalized;
   return candidate.length > cfg.captureMaxChars ? candidate.slice(0, cfg.captureMaxChars).trimEnd() : candidate;
+}
+
+function readMaxContextTokens(event: unknown): number | undefined {
+  const eventRecord = asRecord(event);
+  const requestRecord = asRecord(eventRecord?.request);
+  for (const value of [eventRecord?.maxContextTokens, requestRecord?.maxContextTokens]) {
+    if (typeof value === "number" && Number.isFinite(value) && value > 0) {
+      return Math.floor(value);
+    }
+  }
+  return undefined;
+}
+
+class ContextForgeLongTermContext implements LongTermContextPlugin {
+  constructor(
+    private readonly client: ContextForgeClient,
+    private readonly cfg: ContextForgeConfig,
+  ) {}
+
+  async prepareContext(
+    request: PrepareContextRequest,
+    signal?: AbortSignal,
+  ): Promise<PreparedContext | undefined> {
+    if (this.cfg.mode === "off" || !this.cfg.autoRecall) {
+      return undefined;
+    }
+
+    const query = normalizeText(request.query, this.cfg.recallMaxChars);
+    if (!query) {
+      return undefined;
+    }
+
+    const started = Date.now();
+    const result = await this.client.recall(
+      {
+        namespace: request.namespace,
+        query,
+        maxTokens: resolveRecallTokenBudget(request, this.cfg),
+        category: this.cfg.category,
+      },
+      signal,
+      this.cfg.autoRecallTimeoutMs,
+    );
+
+    return {
+      context: result.context.trim()
+        ? formatInjectedContext(result.context, request.namespace.namespace)
+        : "",
+      sources: result.sources,
+      totalTokens: result.totalTokens,
+      latencyMs: Date.now() - started,
+    };
+  }
+
+  async recordTurn(
+    request: RecordTurnRequest,
+    signal?: AbortSignal,
+  ) {
+    if (this.cfg.mode === "off" || !this.cfg.autoCapture || !request.success) {
+      return undefined;
+    }
+
+    const candidate = extractExplicitMemory(request.latestUserText, this.cfg);
+    if (!candidate) {
+      return undefined;
+    }
+
+    return await this.client.remember(
+      {
+        namespace: request.namespace,
+        text: candidate,
+        title: "OpenClaw captured memory",
+        category: this.cfg.category,
+        metadata: { source: "openclaw_auto_capture", runId: request.runId },
+      },
+      signal,
+      this.cfg.timeoutMs,
+    );
+  }
 }
 
 function createTools(
@@ -392,7 +488,8 @@ export default definePluginEntry({
     }
 
     const client = new ContextForgeClient(cfg.serviceUrl);
-    api.logger.info(`contextforge: plugin registered (${cfg.serviceUrl})`);
+    const longTermContext = new ContextForgeLongTermContext(client, cfg);
+    api.logger.info(`contextforge: plugin registered (${cfg.serviceUrl}, mode=${cfg.mode})`);
 
     api.registerTool((ctx) => createTools(client, cfg, ctx), {
       names: [
@@ -407,43 +504,31 @@ export default definePluginEntry({
     api.on(
       "before_prompt_build",
       async (event, ctx) => {
-        if (!cfg.autoRecall) {
-          return;
-        }
-        const rawQuery = event.prompt || extractLatestUserText(event.messages);
-        const query = normalizeText(rawQuery ?? "", cfg.recallMaxChars);
-        if (!query) {
-          return;
-        }
         const namespace = resolveNamespace(cfg, ctx);
-        const started = Date.now();
         try {
-          const result = await client.recall(
-            {
-              namespace,
-              query,
-              maxTokens: cfg.recallMaxTokens,
-              category: cfg.category,
-            },
-            undefined,
-            cfg.autoRecallTimeoutMs,
-          );
-          const latencyMs = Date.now() - started;
+          const prepared = await longTermContext.prepareContext({
+            namespace,
+            query: event.prompt || extractLatestUserText(event.messages) || "",
+            maxContextTokens: readMaxContextTokens(event),
+          });
+          if (!prepared) {
+            return;
+          }
           api.logger.info(
             `contextforge: recall ${JSON.stringify({
               runId: ctx.runId,
               sessionId: ctx.sessionId,
               namespace: namespace.namespace,
-              sourceIds: result.sources.map((source) => source.id),
-              totalTokens: result.totalTokens,
-              latencyMs,
+              sourceIds: prepared.sources.map((source) => source.id),
+              totalTokens: prepared.totalTokens,
+              latencyMs: prepared.latencyMs,
             })}`,
           );
-          if (!result.context.trim()) {
+          if (!prepared.context.trim()) {
             return;
           }
           return {
-            prependContext: formatInjectedContext(result.context, namespace.namespace),
+            prependContext: prepared.context,
           };
         } catch (error) {
           api.logger.warn(`contextforge: auto-recall skipped (${String(error)})`);
@@ -454,27 +539,18 @@ export default definePluginEntry({
     );
 
     api.on("agent_end", (event, ctx) => {
-      if (!cfg.autoCapture || !event.success) {
-        return;
-      }
-      const candidate = extractExplicitMemory(extractLatestUserText(event.messages), cfg);
-      if (!candidate) {
-        return;
-      }
       const namespace = resolveNamespace(cfg, ctx);
-      void client
-        .remember(
-          {
-            namespace,
-            text: candidate,
-            title: "OpenClaw captured memory",
-            category: cfg.category,
-            metadata: { source: "openclaw_auto_capture", runId: event.runId ?? ctx.runId },
-          },
-          undefined,
-          cfg.timeoutMs,
-        )
+      void longTermContext
+        .recordTurn({
+          namespace,
+          success: Boolean(event.success),
+          latestUserText: extractLatestUserText(event.messages),
+          runId: event.runId ?? ctx.runId,
+        })
         .then((result) => {
+          if (!result) {
+            return;
+          }
           api.logger.info(`contextforge: auto-captured ${result.id}`);
         })
         .catch((error) => {
@@ -483,4 +559,3 @@ export default definePluginEntry({
     });
   },
 });
-

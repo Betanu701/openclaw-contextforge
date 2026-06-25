@@ -1,8 +1,10 @@
-import type { ContextForgeConfig } from "./types.js";
+import type { ContextForgeConfig, ContextForgeMode } from "./types.js";
 
 export const DEFAULT_CONTEXTFORGE_CONFIG: ContextForgeConfig = {
   serviceUrl: "http://contextforge:8765",
   namespacePrefix: "openclaw",
+  mode: "contextforge",
+  budgetRatio: 0.25,
   autoRecall: true,
   autoCapture: true,
   recallMaxTokens: 4096,
@@ -31,6 +33,8 @@ function resolveEnvTemplate(value: string, key: string): string {
   }
   return envValue;
 }
+
+const CONTEXTFORGE_MODES = new Set<ContextForgeMode>(["off", "contextforge", "hybrid"]);
 
 function readString(
   record: Record<string, unknown>,
@@ -72,6 +76,7 @@ function readNumber(
   fallback: number,
   min: number,
   max: number,
+  integer = true,
 ): number {
   const value = record[key];
   if (value === undefined) {
@@ -83,7 +88,22 @@ function readNumber(
   if (value < min || value > max) {
     throw new Error(`ContextForge config ${String(key)} must be between ${min} and ${max}`);
   }
-  return Math.floor(value);
+  return integer ? Math.floor(value) : value;
+}
+
+function readMode(
+  record: Record<string, unknown>,
+  key: keyof ContextForgeConfig,
+  fallback: ContextForgeMode,
+): ContextForgeMode {
+  const value = record[key];
+  if (value === undefined) {
+    return fallback;
+  }
+  if (typeof value !== "string" || !CONTEXTFORGE_MODES.has(value as ContextForgeMode)) {
+    throw new Error(`ContextForge config ${String(key)} must be one of: off, contextforge, hybrid`);
+  }
+  return value as ContextForgeMode;
 }
 
 function readStringArray(
@@ -112,6 +132,15 @@ export function parseContextForgeConfig(value: unknown): ContextForgeConfig {
     serviceUrl: readString(record, "serviceUrl", DEFAULT_CONTEXTFORGE_CONFIG.serviceUrl).replace(
       /\/+$/,
       "",
+    ),
+    mode: readMode(record, "mode", DEFAULT_CONTEXTFORGE_CONFIG.mode),
+    budgetRatio: readNumber(
+      record,
+      "budgetRatio",
+      DEFAULT_CONTEXTFORGE_CONFIG.budgetRatio,
+      0.01,
+      1,
+      false,
     ),
     namespacePrefix: readString(
       record,
@@ -149,6 +178,8 @@ export const contextForgeConfigSchema = {
       label: "ContextForge service URL",
       placeholder: DEFAULT_CONTEXTFORGE_CONFIG.serviceUrl,
     },
+    mode: { label: "Long-term context mode" },
+    budgetRatio: { label: "Context budget ratio", advanced: true },
     namespacePrefix: { label: "Namespace prefix", advanced: true },
     autoRecall: { label: "Auto-recall" },
     autoCapture: { label: "Explicit auto-capture" },
@@ -161,4 +192,3 @@ export const contextForgeConfigSchema = {
     autoCaptureTriggers: { label: "Auto-capture trigger phrases", advanced: true },
   },
 };
-
