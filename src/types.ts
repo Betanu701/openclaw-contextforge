@@ -3,7 +3,9 @@ export type ContextForgeMode = "off" | "contextforge" | "hybrid";
 export type ContextForgeConfig = {
   serviceUrl: string;
   namespacePrefix: string;
+  /** Controls automatic long-term recall/writeback for this plugin. */
   mode: ContextForgeMode;
+  /** Fraction of available prompt context to reserve for automatic recall, from 0.01 to 1. */
   budgetRatio: number;
   autoRecall: boolean;
   autoCapture: boolean;

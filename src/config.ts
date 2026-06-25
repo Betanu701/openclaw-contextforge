@@ -70,6 +70,10 @@ function readBoolean(
   return value;
 }
 
+/**
+ * Reads a bounded numeric config value.
+ * Use integer=false for ratio-style values that must preserve decimals.
+ */
 function readNumber(
   record: Record<string, unknown>,
   key: keyof ContextForgeConfig,
@@ -149,11 +153,11 @@ export function parseContextForgeConfig(value: unknown): ContextForgeConfig {
     ),
     autoRecall: readBoolean(record, "autoRecall", DEFAULT_CONTEXTFORGE_CONFIG.autoRecall),
     autoCapture: readBoolean(record, "autoCapture", DEFAULT_CONTEXTFORGE_CONFIG.autoCapture),
-    recallMaxTokens: readNumber(record, "recallMaxTokens", 4096, 256, 65536),
-    recallMaxChars: readNumber(record, "recallMaxChars", 2000, 100, 20000),
-    captureMaxChars: readNumber(record, "captureMaxChars", 4000, 100, 20000),
-    autoRecallTimeoutMs: readNumber(record, "autoRecallTimeoutMs", 750, 100, 10000),
-    timeoutMs: readNumber(record, "timeoutMs", 5000, 500, 60000),
+    recallMaxTokens: readNumber(record, "recallMaxTokens", 4096, 256, 65536, true),
+    recallMaxChars: readNumber(record, "recallMaxChars", 2000, 100, 20000, true),
+    captureMaxChars: readNumber(record, "captureMaxChars", 4000, 100, 20000, true),
+    autoRecallTimeoutMs: readNumber(record, "autoRecallTimeoutMs", 750, 100, 10000, true),
+    timeoutMs: readNumber(record, "timeoutMs", 5000, 500, 60000, true),
     category: readString(record, "category", DEFAULT_CONTEXTFORGE_CONFIG.category),
     autoCaptureTriggers: readStringArray(
       record,

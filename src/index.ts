@@ -85,6 +85,7 @@ function resolveRecallTokenBudget(
     request.maxContextTokens > 0
       ? request.maxContextTokens
       : cfg.recallMaxTokens;
+  // Reserve only the configured fraction of the larger prompt budget, then cap that slice at recallMaxTokens.
   return Math.max(1, Math.min(cfg.recallMaxTokens, Math.floor(baseBudget * cfg.budgetRatio)));
 }
 
@@ -217,6 +218,10 @@ function extractExplicitMemory(text: string | undefined, cfg: ContextForgeConfig
   return candidate.length > cfg.captureMaxChars ? candidate.slice(0, cfg.captureMaxChars).trimEnd() : candidate;
 }
 
+/**
+ * OpenClaw may surface the available prompt budget either on the hook event itself
+ * or under event.request, so check both before falling back to recallMaxTokens.
+ */
 function readMaxContextTokens(event: unknown): number | undefined {
   const eventRecord = asRecord(event);
   const requestRecord = asRecord(eventRecord?.request);
@@ -286,7 +291,7 @@ class ContextForgeLongTermContext implements LongTermContextPlugin {
       {
         namespace: request.namespace,
         text: candidate,
-        title: "OpenClaw captured memory",
+        title: `OpenClaw auto-captured memory (${this.cfg.category})`,
         category: this.cfg.category,
         metadata: { source: "openclaw_auto_capture", runId: request.runId },
       },

@@ -29,7 +29,7 @@
     },
     "mode": {
       "label": "Long-term context mode",
-      "help": "off disables automatic recall/writeback, contextforge enables ContextForge-managed long-term context, hybrid preserves the explicit hybrid mode value"
+      "help": "off disables automatic recall/writeback, contextforge enables ContextForge-managed long-term context, and hybrid currently behaves like contextforge while preserving the explicit hybrid mode value"
     },
     "budgetRatio": {
       "label": "Context budget ratio",

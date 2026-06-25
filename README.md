@@ -8,6 +8,7 @@ ContextForge is an opt-in long-term context provider for this plugin. It decides
 
 - OpenClaw loads the `contextforge` plugin as the active `plugins.slots.memory` implementation.
 - The TypeScript plugin calls a local sidecar during `before_prompt_build` and injects bounded, delimited, explicitly untrusted memory context.
+- Retrieved memories remain separate from the live user request and should not be treated as direct instructions to execute.
 - Explicit memory capture happens through `contextforge_remember` or user turns containing phrases such as `remember this`.
 - The sidecar stores namespaced ContextForge nodes in SQLite and filters recall by OpenClaw session/user/channel namespace.
 
