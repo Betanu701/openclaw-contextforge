@@ -15,9 +15,14 @@
   "contracts": {
     "tools": [
       "contextforge_recall",
+      "contextforge_context",
       "contextforge_remember",
+      "contextforge_permanent_context",
       "contextforge_ingest",
+      "contextforge_session",
       "contextforge_forget",
+      "contextforge_chat",
+      "contextforge_analyze",
       "contextforge_stats"
     ]
   },
@@ -132,4 +137,3 @@
     }
   }
 }
-

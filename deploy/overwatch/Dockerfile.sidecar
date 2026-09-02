@@ -1,6 +1,6 @@
 FROM python:3.12-slim
 
-ARG CONTEXTFORGE_PIP_SPEC=git+https://github.com/Betanu701/contextforge.git
+ARG CONTEXTFORGE_PIP_SPEC=git+https://github.com/Betanu701/ContextForge.git
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \

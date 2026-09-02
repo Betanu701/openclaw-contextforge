@@ -48,6 +48,15 @@ export type RecallResponse = {
   latencyMs: number;
 };
 
+export type ContextRequest = RecallRequest & {
+  includePermanent?: boolean;
+};
+
+export type ContextResponse = RecallResponse & {
+  permanentTokens: number;
+  branchPaths: string[];
+};
+
 export type RememberRequest = {
   namespace: ContextForgeNamespace;
   text: string;
@@ -91,6 +100,70 @@ export type ForgetResponse = {
   candidates: ContextForgeSource[];
 };
 
+export type PermanentContextRequest = {
+  namespace: ContextForgeNamespace;
+  text: string;
+  title?: string;
+};
+
+export type PermanentContextResponse = {
+  id: string;
+  tokens: number;
+};
+
+export type SessionRequest = {
+  namespace: ContextForgeNamespace;
+  sessionId?: string;
+  metadata?: Record<string, unknown>;
+};
+
+export type SessionMessageRequest = {
+  namespace: ContextForgeNamespace;
+  sessionId?: string;
+  role: string;
+  content: string;
+};
+
+export type SessionResponse = {
+  id: string;
+  resumed: boolean;
+  messageCount: number;
+  totalTokens: number;
+  metadata: Record<string, unknown>;
+};
+
+export type SessionsResponse = {
+  sessions: SessionResponse[];
+};
+
+export type ChatRequest = {
+  namespace: ContextForgeNamespace;
+  message: string;
+  sessionId?: string;
+  category?: string;
+  maxTokens?: number;
+  limit?: number;
+  modelKwargs?: Record<string, unknown>;
+};
+
+export type ChatResponse = {
+  response: string;
+  sessionId: string;
+  context: ContextResponse;
+  latencyMs: number;
+};
+
+export type AnalyzeRequest = ChatRequest & {
+  maxPasses?: number;
+};
+
+export type AnalyzeResponse = {
+  response: string;
+  sessionId: string;
+  contexts: ContextResponse[];
+  latencyMs: number;
+};
+
 export type StatsResponse = {
   dbPath: string;
   namespace?: string;
@@ -99,5 +172,7 @@ export type StatsResponse = {
   indexedTerms: number;
   categories: Record<string, number>;
   cache: Record<string, unknown>;
+  sessions?: number;
+  permanentContextTokens?: number;
+  modelConfigured?: boolean;
 };
-

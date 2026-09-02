@@ -1,13 +1,32 @@
 # OpenClaw ContextForge
 
-OpenClaw ContextForge is an external OpenClaw memory plugin plus a Python HTTP sidecar that gives OpenClaw access to ContextForge hierarchical memory without patching OpenClaw core.
+OpenClaw ContextForge is an external OpenClaw plugin plus a Python HTTP sidecar that gives OpenClaw access to ContextForge hierarchical memory, proactive context assembly, scoped sessions, permanent context, and optional model-backed analysis without patching OpenClaw core.
 
 ## Architecture
 
 - OpenClaw loads the `contextforge` plugin as the active `plugins.slots.memory` implementation.
-- The TypeScript plugin calls a local sidecar during `before_prompt_build` and injects bounded, delimited memory context.
+- The TypeScript plugin calls a local sidecar during `before_prompt_build` and injects bounded, delimited ContextForge working context.
 - Explicit memory capture happens through `contextforge_remember` or user turns containing phrases such as `remember this`.
-- The sidecar stores namespaced ContextForge nodes in SQLite and filters recall by OpenClaw session/user/channel namespace.
+- The sidecar stores namespaced ContextForge nodes and sessions in SQLite and filters recall by OpenClaw session/user/channel namespace.
+- Permanent context is namespace-scoped, so durable project rules/persona/contracts can be loaded before recalled branches without leaking across users or conversations.
+- If the sidecar is configured with an LLM provider, OpenClaw can call ContextForge chat and multi-pass analysis directly; otherwise those tools are disabled with a clear configuration error.
+
+## OpenClaw tools
+
+The plugin exposes these tools to agents:
+
+| Tool | Purpose |
+| --- | --- |
+| `contextforge_context` | Assemble permanent context plus relevant memory branches for a query. |
+| `contextforge_recall` | Search scoped ContextForge memory and return sources. |
+| `contextforge_remember` | Store a durable fact, decision, preference, or note. |
+| `contextforge_permanent_context` | Set scoped permanent context for future turns. |
+| `contextforge_ingest` | Ingest raw text or sidecar-approved files/directories. |
+| `contextforge_session` | Start/resume/list sessions or append explicit session messages. |
+| `contextforge_chat` | Ask the sidecar model through ContextForge context assembly and session memory. |
+| `contextforge_analyze` | Run multi-pass analysis across matching memory categories and synthesize one answer. |
+| `contextforge_forget` | Delete a memory by id or inspect deletion candidates. |
+| `contextforge_stats` | Show node/index/session/permanent-context/model status. |
 
 ## Local development
 
@@ -98,6 +117,10 @@ Useful sidecar environment variables:
 | `CONTEXTFORGE_MAX_CONTEXT_TOKENS` | `4096` | Maximum recall context returned by the sidecar. |
 | `CONTEXTFORGE_MAX_NODE_TOKENS` | `768` | Ingest-time chunk size so large documents are indexed as retrievable snippets instead of one oversized node. |
 | `CONTEXTFORGE_INGEST_ROOT` | unset | Required root directory for path ingestion. |
+| `CONTEXTFORGE_LLM_PROVIDER` | unset | Optional provider for sidecar `chat`/`analyze`; e.g. `local`, `openai`, or `anthropic`. |
+| `CONTEXTFORGE_LLM_BASE_URL` | unset | Optional OpenAI-compatible endpoint for local/hosted inference. |
+| `CONTEXTFORGE_LLM_MODEL` | unset | Optional model/deployment name used by sidecar `chat`/`analyze`. |
+| `CONTEXTFORGE_LLM_API_KEY` | unset | Optional API key for sidecar model calls. |
 
 ## Benchmark
 

@@ -11,12 +11,16 @@ services:
       context: ../..
       dockerfile: deploy/overwatch/Dockerfile.sidecar
       args:
-        CONTEXTFORGE_PIP_SPEC: ${CONTEXTFORGE_PIP_SPEC:-git+https://github.com/Betanu701/contextforge.git}
+        CONTEXTFORGE_PIP_SPEC: ${CONTEXTFORGE_PIP_SPEC:-git+https://github.com/Betanu701/ContextForge.git}
     environment:
       CONTEXTFORGE_DB_PATH: /data/contextforge.db
       CONTEXTFORGE_MAX_CONTEXT_TOKENS: ${CONTEXTFORGE_MAX_CONTEXT_TOKENS:-4096}
       CONTEXTFORGE_MAX_NODE_TOKENS: ${CONTEXTFORGE_MAX_NODE_TOKENS:-768}
       CONTEXTFORGE_INGEST_ROOT: /ingest
+      CONTEXTFORGE_LLM_PROVIDER: ${CONTEXTFORGE_LLM_PROVIDER:-}
+      CONTEXTFORGE_LLM_BASE_URL: ${CONTEXTFORGE_LLM_BASE_URL:-}
+      CONTEXTFORGE_LLM_MODEL: ${CONTEXTFORGE_LLM_MODEL:-}
+      CONTEXTFORGE_LLM_API_KEY: ${CONTEXTFORGE_LLM_API_KEY:-}
     ports:
       - "${CONTEXTFORGE_PORT:-8765}:8765"
     volumes:

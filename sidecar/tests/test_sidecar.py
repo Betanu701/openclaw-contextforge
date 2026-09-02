@@ -198,3 +198,96 @@ def test_recall_phrase_scan_finds_official_niah_style_answer(tmp_path: Path) -> 
     payload = recalled.json()
     assert "eat a sandwich and sit in Dolores Park on a sunny day" in payload["context"]
     assert payload["totalTokens"] <= 220
+
+
+def test_context_includes_namespace_permanent_context(tmp_path: Path) -> None:
+    client = make_client(tmp_path, max_context_tokens=260, max_node_tokens=80)
+    ns = namespace("openclaw/test/full-context")
+    permanent = client.post(
+        "/permanent-context",
+        json={
+            "namespace": ns,
+            "text": "Permanent project rule: always prefer BLUE deployment.",
+        },
+    )
+    assert permanent.status_code == 200
+
+    ingested = client.post(
+        "/ingest",
+        json={
+            "namespace": ns,
+            "text": "Deployment runbook says the rollback marker is ROLLBACK-4242.",
+            "title": "Deployment runbook",
+            "category": "ops",
+        },
+    )
+    assert ingested.status_code == 200
+
+    context = client.post(
+        "/context",
+        json={
+            "namespace": ns,
+            "query": "What is the rollback marker?",
+            "category": "ops",
+            "maxTokens": 260,
+        },
+    )
+    assert context.status_code == 200
+    payload = context.json()
+    assert "always prefer BLUE deployment" in payload["context"]
+    assert "ROLLBACK-4242" in payload["context"]
+    assert payload["permanentTokens"] > 0
+    assert payload["branchPaths"]
+
+
+def test_sessions_are_namespaced_and_persist_messages(tmp_path: Path) -> None:
+    client = make_client(tmp_path)
+    ns_a = namespace("openclaw/session/user-a")
+    ns_b = namespace("openclaw/session/user-b")
+
+    started = client.post(
+        "/session/start",
+        json={"namespace": ns_a, "sessionId": "planning", "metadata": {"topic": "alpha"}},
+    )
+    assert started.status_code == 200
+    assert started.json()["resumed"] is False
+
+    message = client.post(
+        "/session/message",
+        json={
+            "namespace": ns_a,
+            "sessionId": "planning",
+            "role": "user",
+            "content": "Remember the alpha milestone.",
+        },
+    )
+    assert message.status_code == 200
+    assert message.json()["messageCount"] == 1
+
+    resumed = client.post(
+        "/session/start",
+        json={"namespace": ns_a, "sessionId": "planning"},
+    )
+    assert resumed.status_code == 200
+    assert resumed.json()["resumed"] is True
+    assert resumed.json()["messageCount"] == 1
+
+    listed_a = client.post("/sessions/list", json={"namespace": ns_a})
+    listed_b = client.post("/sessions/list", json={"namespace": ns_b})
+    assert listed_a.status_code == 200
+    assert listed_b.status_code == 200
+    assert len(listed_a.json()["sessions"]) == 1
+    assert listed_b.json()["sessions"] == []
+
+
+def test_chat_requires_configured_sidecar_model(tmp_path: Path) -> None:
+    client = make_client(tmp_path)
+    response = client.post(
+        "/chat",
+        json={
+            "namespace": namespace("openclaw/test/model-gated"),
+            "message": "Hello",
+        },
+    )
+    assert response.status_code == 400
+    assert "CONTEXTFORGE_LLM_PROVIDER" in response.json()["detail"]

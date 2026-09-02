@@ -1,12 +1,24 @@
 import type {
+  AnalyzeRequest,
+  AnalyzeResponse,
+  ChatRequest,
+  ChatResponse,
+  ContextRequest,
+  ContextResponse,
   ForgetRequest,
   ForgetResponse,
   IngestRequest,
   IngestResponse,
+  PermanentContextRequest,
+  PermanentContextResponse,
   RecallRequest,
   RecallResponse,
   RememberRequest,
   RememberResponse,
+  SessionMessageRequest,
+  SessionRequest,
+  SessionResponse,
+  SessionsResponse,
   StatsResponse,
 } from "./types.js";
 
@@ -63,6 +75,14 @@ export class ContextForgeClient {
     return await this.request<RecallResponse>("POST", "/recall", request, signal, timeoutMs);
   }
 
+  async context(
+    request: ContextRequest,
+    signal: AbortSignal | undefined,
+    timeoutMs: number,
+  ): Promise<ContextResponse> {
+    return await this.request<ContextResponse>("POST", "/context", request, signal, timeoutMs);
+  }
+
   async remember(
     request: RememberRequest,
     signal: AbortSignal | undefined,
@@ -85,6 +105,66 @@ export class ContextForgeClient {
     timeoutMs: number,
   ): Promise<ForgetResponse> {
     return await this.request<ForgetResponse>("POST", "/forget", request, signal, timeoutMs);
+  }
+
+  async setPermanentContext(
+    request: PermanentContextRequest,
+    signal: AbortSignal | undefined,
+    timeoutMs: number,
+  ): Promise<PermanentContextResponse> {
+    return await this.request<PermanentContextResponse>(
+      "POST",
+      "/permanent-context",
+      request,
+      signal,
+      timeoutMs,
+    );
+  }
+
+  async startSession(
+    request: SessionRequest,
+    signal: AbortSignal | undefined,
+    timeoutMs: number,
+  ): Promise<SessionResponse> {
+    return await this.request<SessionResponse>("POST", "/session/start", request, signal, timeoutMs);
+  }
+
+  async addSessionMessage(
+    request: SessionMessageRequest,
+    signal: AbortSignal | undefined,
+    timeoutMs: number,
+  ): Promise<SessionResponse> {
+    return await this.request<SessionResponse>(
+      "POST",
+      "/session/message",
+      request,
+      signal,
+      timeoutMs,
+    );
+  }
+
+  async listSessions(
+    request: SessionRequest,
+    signal: AbortSignal | undefined,
+    timeoutMs: number,
+  ): Promise<SessionsResponse> {
+    return await this.request<SessionsResponse>("POST", "/sessions/list", request, signal, timeoutMs);
+  }
+
+  async chat(
+    request: ChatRequest,
+    signal: AbortSignal | undefined,
+    timeoutMs: number,
+  ): Promise<ChatResponse> {
+    return await this.request<ChatResponse>("POST", "/chat", request, signal, timeoutMs);
+  }
+
+  async analyze(
+    request: AnalyzeRequest,
+    signal: AbortSignal | undefined,
+    timeoutMs: number,
+  ): Promise<AnalyzeResponse> {
+    return await this.request<AnalyzeResponse>("POST", "/analyze", request, signal, timeoutMs);
   }
 
   async stats(namespace: string | undefined, signal: AbortSignal | undefined, timeoutMs: number) {
@@ -113,4 +193,3 @@ export class ContextForgeClient {
     }
   }
 }
-
