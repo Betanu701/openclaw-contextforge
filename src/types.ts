@@ -4,11 +4,17 @@ export type ContextForgeConfig = {
   autoRecall: boolean;
   autoCapture: boolean;
   recallMaxTokens: number;
+  autoRecallLimit: number;
   recallMaxChars: number;
   captureMaxChars: number;
   autoRecallTimeoutMs: number;
   timeoutMs: number;
   category: string;
+  includePermanentContext: boolean;
+  allowedCategories: string[];
+  blockedCategories: string[];
+  minScore?: number;
+  maxSourceTokens?: number;
   autoCaptureTriggers: string[];
 };
 
@@ -37,6 +43,10 @@ export type RecallRequest = {
   query: string;
   conversationContext?: string;
   category?: string;
+  allowedCategories?: string[];
+  blockedCategories?: string[];
+  minScore?: number;
+  maxSourceTokens?: number;
   maxTokens?: number;
   limit?: number;
 };
@@ -141,6 +151,11 @@ export type ChatRequest = {
   message: string;
   sessionId?: string;
   category?: string;
+  allowedCategories?: string[];
+  blockedCategories?: string[];
+  minScore?: number;
+  maxSourceTokens?: number;
+  includePermanent?: boolean;
   maxTokens?: number;
   limit?: number;
   modelKwargs?: Record<string, unknown>;

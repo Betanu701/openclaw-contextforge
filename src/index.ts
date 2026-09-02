@@ -176,6 +176,17 @@ function readOptionalNumber(params: Record<string, unknown>, key: string): numbe
   return Math.floor(value);
 }
 
+function readOptionalFiniteNumber(params: Record<string, unknown>, key: string): number | undefined {
+  const value = params[key];
+  if (value === undefined) {
+    return undefined;
+  }
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    throw new Error(`Parameter ${key} must be a finite number`);
+  }
+  return value;
+}
+
 function readOptionalBoolean(params: Record<string, unknown>, key: string): boolean | undefined {
   const value = params[key];
   if (value === undefined) {
@@ -185,6 +196,35 @@ function readOptionalBoolean(params: Record<string, unknown>, key: string): bool
     throw new Error(`Parameter ${key} must be a boolean`);
   }
   return value;
+}
+
+function readOptionalStringArray(params: Record<string, unknown>, key: string): string[] | undefined {
+  const value = params[key];
+  if (value === undefined) {
+    return undefined;
+  }
+  if (!Array.isArray(value)) {
+    throw new Error(`Parameter ${key} must be an array of strings`);
+  }
+  return value.map((entry, index) => {
+    if (typeof entry !== "string" || !entry.trim()) {
+      throw new Error(`Parameter ${key}[${index}] must be a non-empty string`);
+    }
+    return entry.trim();
+  });
+}
+
+function defaultCategory(cfg: ContextForgeConfig, category: string | undefined): string | undefined {
+  return category ?? (cfg.allowedCategories.length > 0 ? undefined : cfg.category);
+}
+
+function contextPolicy(values: Record<string, unknown>, cfg: ContextForgeConfig) {
+  return {
+    allowedCategories: readOptionalStringArray(values, "allowedCategories") ?? cfg.allowedCategories,
+    blockedCategories: readOptionalStringArray(values, "blockedCategories") ?? cfg.blockedCategories,
+    minScore: readOptionalFiniteNumber(values, "minScore") ?? cfg.minScore,
+    maxSourceTokens: readOptionalNumber(values, "maxSourceTokens") ?? cfg.maxSourceTokens,
+  };
 }
 
 function formatSourceLine(source: ContextForgeSource, index: number): string {
@@ -261,19 +301,29 @@ function createTools(
         limit: Type.Optional(Type.Number({ description: "Maximum number of memories to return" })),
         maxTokens: Type.Optional(Type.Number({ description: "Maximum tokens of recalled context" })),
         category: Type.Optional(Type.String({ description: "Optional category filter" })),
+        allowedCategories: Type.Optional(
+          Type.Array(Type.String({ description: "Category allowed into context" })),
+        ),
+        blockedCategories: Type.Optional(
+          Type.Array(Type.String({ description: "Category blocked from context" })),
+        ),
+        minScore: Type.Optional(Type.Number({ description: "Minimum source score to include" })),
+        maxSourceTokens: Type.Optional(Type.Number({ description: "Maximum tokens per source" })),
         namespace: Type.Optional(Type.String({ description: "Optional explicit namespace override" })),
       }),
       async execute(_toolCallId, params, signal) {
         const values = paramsRecord(params);
         const query = normalizeText(readRequiredString(values, "query"), cfg.recallMaxChars);
         const namespace = resolveNamespace(cfg, ctx, readOptionalString(values, "namespace"));
+        const policy = contextPolicy(values, cfg);
         const result = await client.recall(
           {
             namespace,
             query,
             limit: readOptionalNumber(values, "limit"),
             maxTokens: readOptionalNumber(values, "maxTokens") ?? cfg.recallMaxTokens,
-            category: readOptionalString(values, "category"),
+            category: defaultCategory(cfg, readOptionalString(values, "category")),
+            ...policy,
           },
           signal,
           cfg.timeoutMs,
@@ -297,6 +347,14 @@ function createTools(
         limit: Type.Optional(Type.Number({ description: "Maximum memory branches to load" })),
         maxTokens: Type.Optional(Type.Number({ description: "Maximum tokens of assembled context" })),
         category: Type.Optional(Type.String({ description: "Optional category filter" })),
+        allowedCategories: Type.Optional(
+          Type.Array(Type.String({ description: "Category allowed into context" })),
+        ),
+        blockedCategories: Type.Optional(
+          Type.Array(Type.String({ description: "Category blocked from context" })),
+        ),
+        minScore: Type.Optional(Type.Number({ description: "Minimum source score to include" })),
+        maxSourceTokens: Type.Optional(Type.Number({ description: "Maximum tokens per source" })),
         includePermanent: Type.Optional(
           Type.Boolean({ description: "Include namespace-scoped permanent context" }),
         ),
@@ -305,6 +363,7 @@ function createTools(
       async execute(_toolCallId, params, signal) {
         const values = paramsRecord(params);
         const namespace = resolveNamespace(cfg, ctx, readOptionalString(values, "namespace"));
+        const policy = contextPolicy(values, cfg);
         const result = await client.context(
           {
             namespace,
@@ -312,8 +371,10 @@ function createTools(
             conversationContext: readOptionalString(values, "conversationContext"),
             limit: readOptionalNumber(values, "limit"),
             maxTokens: readOptionalNumber(values, "maxTokens") ?? cfg.recallMaxTokens,
-            category: readOptionalString(values, "category") ?? cfg.category,
-            includePermanent: readOptionalBoolean(values, "includePermanent") ?? true,
+            category: defaultCategory(cfg, readOptionalString(values, "category")),
+            includePermanent:
+              readOptionalBoolean(values, "includePermanent") ?? cfg.includePermanentContext,
+            ...policy,
           },
           signal,
           cfg.timeoutMs,
@@ -518,6 +579,17 @@ function createTools(
         message: Type.String({ description: "Message to send through ContextForge" }),
         sessionId: Type.Optional(Type.String({ description: "Optional ContextForge session id" })),
         category: Type.Optional(Type.String({ description: "Optional category filter" })),
+        allowedCategories: Type.Optional(
+          Type.Array(Type.String({ description: "Category allowed into context" })),
+        ),
+        blockedCategories: Type.Optional(
+          Type.Array(Type.String({ description: "Category blocked from context" })),
+        ),
+        minScore: Type.Optional(Type.Number({ description: "Minimum source score to include" })),
+        maxSourceTokens: Type.Optional(Type.Number({ description: "Maximum tokens per source" })),
+        includePermanent: Type.Optional(
+          Type.Boolean({ description: "Include namespace-scoped permanent context" }),
+        ),
         limit: Type.Optional(Type.Number({ description: "Maximum memory branches to load" })),
         maxTokens: Type.Optional(Type.Number({ description: "Maximum tokens of assembled context" })),
         namespace: Type.Optional(Type.String({ description: "Optional explicit namespace override" })),
@@ -525,14 +597,18 @@ function createTools(
       async execute(_toolCallId, params, signal) {
         const values = paramsRecord(params);
         const namespace = resolveNamespace(cfg, ctx, readOptionalString(values, "namespace"));
+        const policy = contextPolicy(values, cfg);
         const result = await client.chat(
           {
             namespace,
             message: readRequiredString(values, "message"),
             sessionId: readOptionalString(values, "sessionId"),
-            category: readOptionalString(values, "category") ?? cfg.category,
+            category: defaultCategory(cfg, readOptionalString(values, "category")),
             limit: readOptionalNumber(values, "limit"),
             maxTokens: readOptionalNumber(values, "maxTokens") ?? cfg.recallMaxTokens,
+            includePermanent:
+              readOptionalBoolean(values, "includePermanent") ?? cfg.includePermanentContext,
+            ...policy,
           },
           signal,
           cfg.timeoutMs,
@@ -552,6 +628,17 @@ function createTools(
         query: Type.String({ description: "Question or analysis request" }),
         sessionId: Type.Optional(Type.String({ description: "Optional ContextForge session id" })),
         category: Type.Optional(Type.String({ description: "Optional single category filter" })),
+        allowedCategories: Type.Optional(
+          Type.Array(Type.String({ description: "Category allowed into context" })),
+        ),
+        blockedCategories: Type.Optional(
+          Type.Array(Type.String({ description: "Category blocked from context" })),
+        ),
+        minScore: Type.Optional(Type.Number({ description: "Minimum source score to include" })),
+        maxSourceTokens: Type.Optional(Type.Number({ description: "Maximum tokens per source" })),
+        includePermanent: Type.Optional(
+          Type.Boolean({ description: "Include namespace-scoped permanent context" }),
+        ),
         maxPasses: Type.Optional(Type.Number({ description: "Maximum category passes" })),
         limit: Type.Optional(Type.Number({ description: "Maximum memory branches per pass" })),
         maxTokens: Type.Optional(Type.Number({ description: "Maximum tokens per assembled context" })),
@@ -560,15 +647,19 @@ function createTools(
       async execute(_toolCallId, params, signal) {
         const values = paramsRecord(params);
         const namespace = resolveNamespace(cfg, ctx, readOptionalString(values, "namespace"));
+        const policy = contextPolicy(values, cfg);
         const result = await client.analyze(
           {
             namespace,
             message: readRequiredString(values, "query"),
             sessionId: readOptionalString(values, "sessionId"),
-            category: readOptionalString(values, "category"),
+            category: defaultCategory(cfg, readOptionalString(values, "category")),
             maxPasses: readOptionalNumber(values, "maxPasses"),
             limit: readOptionalNumber(values, "limit"),
             maxTokens: readOptionalNumber(values, "maxTokens") ?? cfg.recallMaxTokens,
+            includePermanent:
+              readOptionalBoolean(values, "includePermanent") ?? cfg.includePermanentContext,
+            ...policy,
           },
           signal,
           cfg.timeoutMs,
@@ -661,9 +752,14 @@ export default definePluginEntry({
               namespace,
               query,
               conversationContext: extractConversationText(event.messages, cfg.recallMaxChars),
+              limit: cfg.autoRecallLimit,
               maxTokens: cfg.recallMaxTokens,
-              category: cfg.category,
-              includePermanent: true,
+              category: defaultCategory(cfg, undefined),
+              includePermanent: cfg.includePermanentContext,
+              allowedCategories: cfg.allowedCategories,
+              blockedCategories: cfg.blockedCategories,
+              minScore: cfg.minScore,
+              maxSourceTokens: cfg.maxSourceTokens,
             },
             undefined,
             cfg.autoRecallTimeoutMs,

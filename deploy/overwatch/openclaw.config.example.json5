@@ -17,6 +17,11 @@
           autoRecall: true,
           autoCapture: true,
           recallMaxTokens: 4096,
+          autoRecallLimit: 6,
+          includePermanentContext: true,
+          allowedCategories: ["openclaw", "_permanent_context"],
+          blockedCategories: [],
+          maxSourceTokens: 768,
           autoRecallTimeoutMs: 750,
           category: "openclaw"
         }
@@ -33,4 +38,3 @@
     }
   }
 }
-

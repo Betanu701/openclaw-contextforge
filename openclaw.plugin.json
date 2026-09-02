@@ -51,6 +51,12 @@
       "placeholder": "4096",
       "advanced": true
     },
+    "autoRecallLimit": {
+      "label": "Auto-recall source limit",
+      "placeholder": "8",
+      "advanced": true,
+      "help": "Maximum number of ContextForge sources automatically injected into a prompt"
+    },
     "recallMaxChars": {
       "label": "Recall query max chars",
       "placeholder": "2000",
@@ -74,6 +80,31 @@
     "category": {
       "label": "Default category",
       "placeholder": "openclaw",
+      "advanced": true
+    },
+    "includePermanentContext": {
+      "label": "Include permanent context",
+      "advanced": true,
+      "help": "Include namespace-scoped permanent ContextForge context in automatic prompt injection"
+    },
+    "allowedCategories": {
+      "label": "Allowed context categories",
+      "advanced": true,
+      "help": "Optional allow-list for categories that can be injected into prompt context"
+    },
+    "blockedCategories": {
+      "label": "Blocked context categories",
+      "advanced": true,
+      "help": "Categories that must never be injected into prompt context"
+    },
+    "minScore": {
+      "label": "Minimum recall score",
+      "placeholder": "0",
+      "advanced": true
+    },
+    "maxSourceTokens": {
+      "label": "Max tokens per source",
+      "placeholder": "768",
       "advanced": true
     },
     "autoCaptureTriggers": {
@@ -102,6 +133,11 @@
         "minimum": 256,
         "maximum": 65536
       },
+      "autoRecallLimit": {
+        "type": "number",
+        "minimum": 1,
+        "maximum": 50
+      },
       "recallMaxChars": {
         "type": "number",
         "minimum": 100,
@@ -124,6 +160,37 @@
       },
       "category": {
         "type": "string"
+      },
+      "includePermanentContext": {
+        "type": "boolean"
+      },
+      "allowedCategories": {
+        "type": "array",
+        "maxItems": 50,
+        "items": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        }
+      },
+      "blockedCategories": {
+        "type": "array",
+        "maxItems": 50,
+        "items": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        }
+      },
+      "minScore": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1000000
+      },
+      "maxSourceTokens": {
+        "type": "number",
+        "minimum": 1,
+        "maximum": 65536
       },
       "autoCaptureTriggers": {
         "type": "array",

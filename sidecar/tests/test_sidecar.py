@@ -240,6 +240,99 @@ def test_context_includes_namespace_permanent_context(tmp_path: Path) -> None:
     assert payload["branchPaths"]
 
 
+def test_context_policy_limits_categories_scores_and_source_size(tmp_path: Path) -> None:
+    client = make_client(tmp_path, max_context_tokens=300, max_node_tokens=200)
+    ns = namespace("openclaw/test/context-policy")
+    permanent = client.post(
+        "/permanent-context",
+        json={
+            "namespace": ns,
+            "text": "Permanent policy marker is PERM-333.",
+        },
+    )
+    assert permanent.status_code == 200
+
+    for category, code in [("allowed", "ALLOW-111"), ("blocked", "BLOCK-222")]:
+        remembered = client.post(
+            "/remember",
+            json={
+                "namespace": ns,
+                "text": f"The deployment marker for policy testing is {code}.",
+                "title": f"{category} marker",
+                "category": category,
+            },
+        )
+        assert remembered.status_code == 200
+
+    allowed = client.post(
+        "/context",
+        json={
+            "namespace": ns,
+            "query": "What is the deployment marker for policy testing?",
+            "allowedCategories": ["allowed"],
+            "maxTokens": 300,
+            "limit": 5,
+        },
+    )
+    assert allowed.status_code == 200
+    allowed_context = allowed.json()["context"]
+    assert "ALLOW-111" in allowed_context
+    assert "BLOCK-222" not in allowed_context
+    assert "PERM-333" not in allowed_context
+
+    allowed_with_permanent = client.post(
+        "/context",
+        json={
+            "namespace": ns,
+            "query": "What is the deployment marker for policy testing?",
+            "allowedCategories": ["allowed", "_permanent_context"],
+            "maxTokens": 300,
+            "limit": 5,
+        },
+    )
+    assert allowed_with_permanent.status_code == 200
+    assert "PERM-333" in allowed_with_permanent.json()["context"]
+
+    blocked = client.post(
+        "/context",
+        json={
+            "namespace": ns,
+            "query": "What is the deployment marker for policy testing?",
+            "blockedCategories": ["allowed", "blocked"],
+            "maxTokens": 300,
+            "limit": 5,
+        },
+    )
+    assert blocked.status_code == 200
+    assert blocked.json()["sources"] == []
+
+    high_score = client.post(
+        "/context",
+        json={
+            "namespace": ns,
+            "query": "What is the deployment marker for policy testing?",
+            "minScore": 1000000,
+            "maxTokens": 300,
+            "limit": 5,
+        },
+    )
+    assert high_score.status_code == 200
+    assert high_score.json()["sources"] == []
+
+    tiny_source_cap = client.post(
+        "/context",
+        json={
+            "namespace": ns,
+            "query": "What is the deployment marker for policy testing?",
+            "maxSourceTokens": 1,
+            "maxTokens": 300,
+            "limit": 5,
+        },
+    )
+    assert tiny_source_cap.status_code == 200
+    assert tiny_source_cap.json()["sources"] == []
+
+
 def test_sessions_are_namespaced_and_persist_messages(tmp_path: Path) -> None:
     client = make_client(tmp_path)
     ns_a = namespace("openclaw/session/user-a")

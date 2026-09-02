@@ -6,11 +6,15 @@ export const DEFAULT_CONTEXTFORGE_CONFIG: ContextForgeConfig = {
   autoRecall: true,
   autoCapture: true,
   recallMaxTokens: 4096,
+  autoRecallLimit: 8,
   recallMaxChars: 2000,
   captureMaxChars: 4000,
   autoRecallTimeoutMs: 750,
   timeoutMs: 5000,
   category: "openclaw",
+  includePermanentContext: true,
+  allowedCategories: [],
+  blockedCategories: [],
   autoCaptureTriggers: ["remember this", "save this", "contextforge remember"],
 };
 
@@ -86,6 +90,25 @@ function readNumber(
   return Math.floor(value);
 }
 
+function readOptionalNumber(
+  record: Record<string, unknown>,
+  key: keyof ContextForgeConfig,
+  min: number,
+  max: number,
+): number | undefined {
+  const value = record[key];
+  if (value === undefined) {
+    return undefined;
+  }
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    throw new Error(`ContextForge config ${String(key)} must be a finite number`);
+  }
+  if (value < min || value > max) {
+    throw new Error(`ContextForge config ${String(key)} must be between ${min} and ${max}`);
+  }
+  return value;
+}
+
 function readStringArray(
   record: Record<string, unknown>,
   key: keyof ContextForgeConfig,
@@ -121,11 +144,21 @@ export function parseContextForgeConfig(value: unknown): ContextForgeConfig {
     autoRecall: readBoolean(record, "autoRecall", DEFAULT_CONTEXTFORGE_CONFIG.autoRecall),
     autoCapture: readBoolean(record, "autoCapture", DEFAULT_CONTEXTFORGE_CONFIG.autoCapture),
     recallMaxTokens: readNumber(record, "recallMaxTokens", 4096, 256, 65536),
+    autoRecallLimit: readNumber(record, "autoRecallLimit", 8, 1, 50),
     recallMaxChars: readNumber(record, "recallMaxChars", 2000, 100, 20000),
     captureMaxChars: readNumber(record, "captureMaxChars", 4000, 100, 20000),
     autoRecallTimeoutMs: readNumber(record, "autoRecallTimeoutMs", 750, 100, 10000),
     timeoutMs: readNumber(record, "timeoutMs", 5000, 500, 60000),
     category: readString(record, "category", DEFAULT_CONTEXTFORGE_CONFIG.category),
+    includePermanentContext: readBoolean(
+      record,
+      "includePermanentContext",
+      DEFAULT_CONTEXTFORGE_CONFIG.includePermanentContext,
+    ),
+    allowedCategories: readStringArray(record, "allowedCategories", []),
+    blockedCategories: readStringArray(record, "blockedCategories", []),
+    minScore: readOptionalNumber(record, "minScore", 0, 1_000_000),
+    maxSourceTokens: readOptionalNumber(record, "maxSourceTokens", 1, 65536),
     autoCaptureTriggers: readStringArray(
       record,
       "autoCaptureTriggers",
@@ -153,12 +186,17 @@ export const contextForgeConfigSchema = {
     autoRecall: { label: "Auto-recall" },
     autoCapture: { label: "Explicit auto-capture" },
     recallMaxTokens: { label: "Recall max tokens", advanced: true },
+    autoRecallLimit: { label: "Auto-recall source limit", advanced: true },
     recallMaxChars: { label: "Recall query max chars", advanced: true },
     captureMaxChars: { label: "Capture max chars", advanced: true },
     autoRecallTimeoutMs: { label: "Auto-recall timeout", advanced: true },
     timeoutMs: { label: "Tool timeout", advanced: true },
     category: { label: "Default category", advanced: true },
+    includePermanentContext: { label: "Include permanent context", advanced: true },
+    allowedCategories: { label: "Allowed context categories", advanced: true },
+    blockedCategories: { label: "Blocked context categories", advanced: true },
+    minScore: { label: "Minimum recall score", advanced: true },
+    maxSourceTokens: { label: "Maximum tokens per source", advanced: true },
     autoCaptureTriggers: { label: "Auto-capture trigger phrases", advanced: true },
   },
 };
-

@@ -28,6 +28,21 @@ The plugin exposes these tools to agents:
 | `contextforge_forget` | Delete a memory by id or inspect deletion candidates. |
 | `contextforge_stats` | Show node/index/session/permanent-context/model status. |
 
+## Context control
+
+Automatic prompt injection uses the same policy fields as `contextforge_context`, `contextforge_chat`, and `contextforge_analyze`:
+
+| Setting | Purpose |
+| --- | --- |
+| `recallMaxTokens` | Hard cap for total injected ContextForge context. |
+| `autoRecallLimit` | Maximum number of sources injected automatically. |
+| `maxSourceTokens` | Skips any individual memory source above this size. |
+| `includePermanentContext` | Enables or disables scoped permanent context in auto-injection. |
+| `category` | Default single category when no allow-list is set. |
+| `allowedCategories` | Optional allow-list; when set, only these categories can enter context. Include `_permanent_context` to allow permanent context. |
+| `blockedCategories` | Deny-list; these categories never enter context. |
+| `minScore` | Optional minimum retrieval score before a source can enter context. |
+
 ## Local development
 
 ```bash
@@ -68,6 +83,31 @@ Then configure OpenClaw:
   }
 }
 ```
+
+To tightly control prompt injection, set an explicit context policy:
+
+```json5
+{
+  plugins: {
+    entries: {
+      contextforge: {
+        config: {
+          serviceUrl: "http://localhost:8765",
+          recallMaxTokens: 2048,
+          autoRecallLimit: 4,
+          maxSourceTokens: 512,
+          includePermanentContext: false,
+          allowedCategories: ["project", "decisions", "_permanent_context"],
+          blockedCategories: ["scratch", "private"],
+          minScore: 0
+        }
+      }
+    }
+  }
+}
+```
+
+Prompt context is limited in this order: namespace isolation, category allow/block policy, minimum score, per-source token cap, source count, then total token budget. If `allowedCategories` is set and permanent context should still be included, include `_permanent_context` in the allow-list. The `contextforge_context` tool previews the exact context block that would be assembled for a query.
 
 ## Installing from GitHub
 

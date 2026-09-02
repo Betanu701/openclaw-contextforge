@@ -126,6 +126,10 @@ class RecallRequest(BaseModel):
     query: str
     conversationContext: str | None = None
     category: str | None = None
+    allowedCategories: list[str] = Field(default_factory=list)
+    blockedCategories: list[str] = Field(default_factory=list)
+    minScore: float | None = None
+    maxSourceTokens: int | None = None
     maxTokens: int | None = None
     limit: int | None = None
 
@@ -142,6 +146,10 @@ class ContextRequest(BaseModel):
     query: str
     conversationContext: str | None = None
     category: str | None = None
+    allowedCategories: list[str] = Field(default_factory=list)
+    blockedCategories: list[str] = Field(default_factory=list)
+    minScore: float | None = None
+    maxSourceTokens: int | None = None
     maxTokens: int | None = None
     limit: int | None = None
     includePermanent: bool = True
@@ -240,6 +248,11 @@ class ChatRequest(BaseModel):
     message: str
     sessionId: str | None = None
     category: str | None = None
+    allowedCategories: list[str] = Field(default_factory=list)
+    blockedCategories: list[str] = Field(default_factory=list)
+    minScore: float | None = None
+    maxSourceTokens: int | None = None
+    includePermanent: bool = True
     maxTokens: int | None = None
     limit: int | None = None
     modelKwargs: dict[str, Any] = Field(default_factory=dict)
@@ -360,6 +373,34 @@ def _fit_to_token_budget(text: str, max_tokens: int) -> str:
     return text[: max_tokens * 4].rstrip()
 
 
+def _clean_categories(categories: list[str] | None) -> set[str]:
+    return {category.strip() for category in categories or [] if category.strip()}
+
+
+def _category_allowed(
+    node_category: str,
+    category: str | None = None,
+    allowed_categories: list[str] | None = None,
+    blocked_categories: list[str] | None = None,
+) -> bool:
+    requested_category = category.strip() if category and category.strip() else None
+    allowed = _clean_categories(allowed_categories)
+    blocked = _clean_categories(blocked_categories)
+    if node_category in blocked:
+        return False
+    if requested_category and node_category != requested_category:
+        return False
+    if allowed and node_category not in allowed:
+        return False
+    if (
+        node_category == PERMANENT_CONTEXT_CATEGORY
+        and requested_category != PERMANENT_CONTEXT_CATEGORY
+        and PERMANENT_CONTEXT_CATEGORY not in allowed
+    ):
+        return False
+    return True
+
+
 class SidecarKnowledgeTree(KnowledgeTree):
     def open(self) -> None:
         self._conn = sqlite3.connect(self._db_path, check_same_thread=False)
@@ -447,7 +488,20 @@ class ContextForgeStore:
         )
         return PermanentContextResponse(id=stored.id, tokens=stored.tokens)
 
-    def _permanent_context(self, namespace: Namespace, max_tokens: int) -> tuple[str, int]:
+    def _permanent_context(
+        self,
+        namespace: Namespace,
+        max_tokens: int,
+        allowed_categories: list[str] | None = None,
+        blocked_categories: list[str] | None = None,
+    ) -> tuple[str, int]:
+        if not _category_allowed(
+            PERMANENT_CONTEXT_CATEGORY,
+            category=PERMANENT_CONTEXT_CATEGORY,
+            allowed_categories=allowed_categories,
+            blocked_categories=blocked_categories,
+        ):
+            return "", 0
         path = f"{_namespace_path(namespace)}/{PERMANENT_CONTEXT_CATEGORY}/permanent"
         node = self.tree.get(path)
         if not node:
@@ -699,8 +753,20 @@ class ContextForgeStore:
                 combined_query,
                 namespace_prefix,
                 request.category,
+                request.allowedCategories,
+                request.blockedCategories,
             )
-            selected = self._select_results(results, namespace_prefix, request.category, max_tokens, limit)
+            selected = self._select_results(
+                results,
+                namespace_prefix,
+                request.category,
+                request.allowedCategories,
+                request.blockedCategories,
+                max_tokens,
+                limit,
+                request.minScore,
+                request.maxSourceTokens,
+            )
             context, sources, tokens = self._assemble(selected, max_tokens)
 
         return RecallResponse(
@@ -716,7 +782,12 @@ class ContextForgeStore:
         permanent = ""
         permanent_tokens = 0
         if request.includePermanent:
-            permanent, permanent_tokens = self._permanent_context(request.namespace, max_tokens)
+            permanent, permanent_tokens = self._permanent_context(
+                request.namespace,
+                max_tokens,
+                request.allowedCategories,
+                request.blockedCategories,
+            )
 
         recall_budget = max(1, max_tokens - permanent_tokens)
         recall = self.recall(
@@ -725,6 +796,10 @@ class ContextForgeStore:
                 query=request.query,
                 conversationContext=request.conversationContext,
                 category=request.category,
+                allowedCategories=request.allowedCategories,
+                blockedCategories=request.blockedCategories,
+                minScore=request.minScore,
+                maxSourceTokens=request.maxSourceTokens,
                 maxTokens=recall_budget,
                 limit=request.limit,
             )
@@ -795,6 +870,11 @@ class ContextForgeStore:
                 query=request.message,
                 conversationContext=recent_context,
                 category=request.category,
+                allowedCategories=request.allowedCategories,
+                blockedCategories=request.blockedCategories,
+                minScore=request.minScore,
+                maxSourceTokens=request.maxSourceTokens,
+                includePermanent=request.includePermanent,
                 maxTokens=request.maxTokens,
                 limit=request.limit,
             )
@@ -818,6 +898,8 @@ class ContextForgeStore:
         namespace: Namespace,
         query: str,
         category: str | None,
+        allowed_categories: list[str],
+        blocked_categories: list[str],
         max_passes: int,
     ) -> list[str]:
         if category:
@@ -831,13 +913,15 @@ class ContextForgeStore:
                 query,
                 namespace_prefix,
                 None,
+                allowed_categories,
+                blocked_categories,
             )
 
         categories: list[str] = []
         for result in results:
             if not result.path.startswith(namespace_prefix):
                 continue
-            if result.category == PERMANENT_CONTEXT_CATEGORY:
+            if not _category_allowed(result.category, None, allowed_categories, blocked_categories):
                 continue
             if result.category not in categories:
                 categories.append(result.category)
@@ -855,6 +939,8 @@ class ContextForgeStore:
             request.namespace,
             request.message,
             request.category,
+            request.allowedCategories,
+            request.blockedCategories,
             max_passes,
         )
 
@@ -865,6 +951,11 @@ class ContextForgeStore:
                     query=request.message,
                     conversationContext=recent_context,
                     category=category,
+                    allowedCategories=request.allowedCategories,
+                    blockedCategories=request.blockedCategories,
+                    minScore=request.minScore,
+                    maxSourceTokens=request.maxSourceTokens,
+                    includePermanent=request.includePermanent,
                     maxTokens=request.maxTokens,
                     limit=request.limit,
                 )
@@ -878,6 +969,11 @@ class ContextForgeStore:
                         namespace=request.namespace,
                         query=request.message,
                         conversationContext=recent_context,
+                        allowedCategories=request.allowedCategories,
+                        blockedCategories=request.blockedCategories,
+                        minScore=request.minScore,
+                        maxSourceTokens=request.maxSourceTokens,
+                        includePermanent=request.includePermanent,
                         maxTokens=request.maxTokens,
                         limit=request.limit,
                     )
@@ -940,6 +1036,8 @@ class ContextForgeStore:
         query: str,
         namespace_prefix: str,
         category: str | None,
+        allowed_categories: list[str],
+        blocked_categories: list[str],
     ) -> list[SearchResult]:
         query_terms = extract_keywords(query, top_k=15)
         phrase_candidates = _query_phrase_candidates(query)
@@ -956,7 +1054,12 @@ class ContextForgeStore:
         ).fetchall()
         phrase_results: list[SearchResult] = []
         for node_id, path, title, node_category, content in rows:
-            if category and node_category != category:
+            if not _category_allowed(
+                str(node_category),
+                category,
+                allowed_categories,
+                blocked_categories,
+            ):
                 continue
             normalized_content = _normalize_phrase_text(str(content))
             content_words = set(normalized_content.split())
@@ -999,18 +1102,32 @@ class ContextForgeStore:
         results: list[SearchResult],
         namespace_prefix: str,
         category: str | None,
+        allowed_categories: list[str],
+        blocked_categories: list[str],
         max_tokens: int,
         limit: int,
+        min_score: float | None,
+        max_source_tokens: int | None,
     ) -> list[SearchResult]:
         selected: list[SearchResult] = []
         total_tokens = 0
+        source_token_limit = max_source_tokens if max_source_tokens and max_source_tokens > 0 else None
         for result in results:
             if not result.path.startswith(namespace_prefix):
                 continue
-            if category and result.category != category:
+            if min_score is not None and result.score < min_score:
+                continue
+            if not _category_allowed(
+                result.category,
+                category,
+                allowed_categories,
+                blocked_categories,
+            ):
                 continue
             node = self.tree.get(result.path)
             if not node:
+                continue
+            if source_token_limit and node.token_estimate > source_token_limit:
                 continue
             entry_tokens = node.token_estimate + estimate_tokens(f"\n### {node.title} [{node.path}]")
             next_total = total_tokens + entry_tokens
