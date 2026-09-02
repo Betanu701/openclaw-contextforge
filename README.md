@@ -5,10 +5,11 @@ OpenClaw ContextForge is an external OpenClaw plugin plus a Python HTTP sidecar 
 ## Architecture
 
 - OpenClaw loads the `contextforge` plugin as the active `plugins.slots.memory` implementation.
-- The TypeScript plugin calls a local sidecar during `before_prompt_build` and injects bounded, delimited ContextForge working context.
+- The TypeScript plugin sends the model/session envelope to the sidecar during `before_prompt_build`; ContextForge plans and returns bounded, delimited working context.
 - Explicit memory capture happens through `contextforge_remember` or user turns containing phrases such as `remember this`.
 - The sidecar stores namespaced ContextForge nodes and sessions in SQLite and filters recall by OpenClaw session/user/channel namespace.
 - Permanent context is namespace-scoped, so durable project rules/persona/contracts can be loaded before recalled branches without leaking across users or conversations.
+- ContextForge owns prompt packing: it pins, selects, compacts, or drops context inside the token envelope and returns a planner receipt explaining the decision.
 - If the sidecar is configured with an LLM provider, OpenClaw can call ContextForge chat and multi-pass analysis directly; otherwise those tools are disabled with a clear configuration error.
 
 ## OpenClaw tools
@@ -28,20 +29,22 @@ The plugin exposes these tools to agents:
 | `contextforge_forget` | Delete a memory by id or inspect deletion candidates. |
 | `contextforge_stats` | Show node/index/session/permanent-context/model status. |
 
-## Context control
+## Context planner
 
 Automatic prompt injection uses the same policy fields as `contextforge_context`, `contextforge_chat`, and `contextforge_analyze`:
 
 | Setting | Purpose |
 | --- | --- |
-| `recallMaxTokens` | Hard cap for total injected ContextForge context. |
-| `autoRecallLimit` | Maximum number of sources injected automatically. |
-| `maxSourceTokens` | Skips any individual memory source above this size. |
+| `recallMaxTokens` | Hard envelope for total injected ContextForge context. |
+| `autoRecallLimit` | Maximum number of memory sources ContextForge can select automatically. |
+| `maxSourceTokens` | Per-source packing target; oversized sources are query-compacted when possible. |
 | `includePermanentContext` | Enables or disables scoped permanent context in auto-injection. |
 | `category` | Default single category when no allow-list is set. |
 | `allowedCategories` | Optional allow-list; when set, only these categories can enter context. Include `_permanent_context` to allow permanent context. |
 | `blockedCategories` | Deny-list; these categories never enter context. |
 | `minScore` | Optional minimum retrieval score before a source can enter context. |
+
+OpenClaw does not append memory directly. It supplies the namespace, query, recent conversation, and hard token envelope; ContextForge decides what earns space. The returned context includes a planner receipt with candidate count, selected count, compacted count, dropped count, budget allocation, and previewed drop reasons.
 
 ## Local development
 
@@ -107,7 +110,7 @@ To tightly control prompt injection, set an explicit context policy:
 }
 ```
 
-Prompt context is limited in this order: namespace isolation, category allow/block policy, minimum score, per-source token cap, source count, then total token budget. If `allowedCategories` is set and permanent context should still be included, include `_permanent_context` in the allow-list. The `contextforge_context` tool previews the exact context block that would be assembled for a query.
+Prompt context is planned in this order: namespace isolation, category allow/block policy, minimum score, permanent-context budget reservation, query-centered source compaction, source count, then total token envelope. If `allowedCategories` is set and permanent context should still be included, include `_permanent_context` in the allow-list. The `contextforge_context` tool previews the exact context block and planner receipt for a query.
 
 ## Installing from GitHub
 

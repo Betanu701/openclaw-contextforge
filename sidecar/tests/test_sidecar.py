@@ -330,7 +330,33 @@ def test_context_policy_limits_categories_scores_and_source_size(tmp_path: Path)
         },
     )
     assert tiny_source_cap.status_code == 200
-    assert tiny_source_cap.json()["sources"] == []
+    tiny_payload = tiny_source_cap.json()
+    assert tiny_payload["sources"]
+    assert tiny_payload["totalTokens"] <= 300
+    assert tiny_payload["plan"]["compactedCount"] >= 1
+    assert any(
+        entry["disposition"] == "compacted" and entry["reason"] == "per_source_token_cap"
+        for entry in tiny_payload["plan"]["items"]
+        if entry["tier"] == "memory"
+    )
+
+    source_limited = client.post(
+        "/context",
+        json={
+            "namespace": ns,
+            "query": "What is the deployment marker for policy testing?",
+            "maxTokens": 300,
+            "limit": 1,
+        },
+    )
+    assert source_limited.status_code == 200
+    source_limited_payload = source_limited.json()
+    assert len(source_limited_payload["sources"]) == 1
+    assert source_limited_payload["plan"]["droppedCount"] >= 1
+    assert any(
+        entry["reason"] == "source_limit_reached"
+        for entry in source_limited_payload["plan"]["dropped"]
+    )
 
 
 def test_sessions_are_namespaced_and_persist_messages(tmp_path: Path) -> None:

@@ -121,6 +121,35 @@ class Source(BaseModel):
     matchedTerms: list[str] = Field(default_factory=list)
 
 
+class ContextPlanEntry(BaseModel):
+    id: str
+    path: str
+    title: str
+    category: str
+    tier: str
+    score: float
+    originalTokens: int
+    plannedTokens: int
+    disposition: str
+    reason: str
+    matchedTerms: list[str] = Field(default_factory=list)
+
+
+class ContextPlan(BaseModel):
+    strategy: str = "contextforge_planner_v1"
+    maxTokens: int
+    recallBudget: int
+    requestedLimit: int
+    candidateCount: int
+    selectedCount: int
+    droppedCount: int
+    compactedCount: int
+    totalTokens: int
+    budgets: dict[str, int] = Field(default_factory=dict)
+    items: list[ContextPlanEntry] = Field(default_factory=list)
+    dropped: list[ContextPlanEntry] = Field(default_factory=list)
+
+
 class RecallRequest(BaseModel):
     namespace: Namespace
     query: str
@@ -139,6 +168,7 @@ class RecallResponse(BaseModel):
     sources: list[Source]
     totalTokens: int
     latencyMs: int
+    plan: ContextPlan
 
 
 class ContextRequest(BaseModel):
@@ -162,6 +192,7 @@ class ContextResponse(BaseModel):
     latencyMs: int
     permanentTokens: int = 0
     branchPaths: list[str] = Field(default_factory=list)
+    plan: ContextPlan
 
 
 class RememberRequest(BaseModel):
@@ -373,8 +404,65 @@ def _fit_to_token_budget(text: str, max_tokens: int) -> str:
     return text[: max_tokens * 4].rstrip()
 
 
+def _compact_content_for_query(content: str, query: str, max_tokens: int) -> str:
+    if max_tokens <= 0 or not content:
+        return ""
+    if estimate_tokens(content) <= max_tokens:
+        return content
+
+    char_budget = max(16, max_tokens * 4)
+    lower_content = content.lower()
+    search_terms = [
+        term.lower()
+        for term in [*_query_phrase_candidates(query), *extract_keywords(query, top_k=12)]
+        if term and term.strip()
+    ]
+    hit_at: int | None = None
+    for term in search_terms:
+        index = lower_content.find(term)
+        if index >= 0 and (hit_at is None or index < hit_at):
+            hit_at = index
+
+    if hit_at is None:
+        start = 0
+    else:
+        start = max(0, hit_at - char_budget // 3)
+    end = min(len(content), start + char_budget)
+    start = max(0, end - char_budget)
+    snippet = content[start:end].strip()
+    if start > 0:
+        snippet = "... " + snippet
+    if end < len(content):
+        snippet = snippet.rstrip() + " ..."
+    return _fit_to_token_budget(snippet, max_tokens)
+
+
 def _clean_categories(categories: list[str] | None) -> set[str]:
     return {category.strip() for category in categories or [] if category.strip()}
+
+
+def _category_rejection_reason(
+    node_category: str,
+    category: str | None = None,
+    allowed_categories: list[str] | None = None,
+    blocked_categories: list[str] | None = None,
+) -> str | None:
+    requested_category = category.strip() if category and category.strip() else None
+    allowed = _clean_categories(allowed_categories)
+    blocked = _clean_categories(blocked_categories)
+    if node_category in blocked:
+        return "blocked_category"
+    if requested_category and node_category != requested_category:
+        return "category_mismatch"
+    if allowed and node_category not in allowed:
+        return "not_allowed_category"
+    if (
+        node_category == PERMANENT_CONTEXT_CATEGORY
+        and requested_category != PERMANENT_CONTEXT_CATEGORY
+        and PERMANENT_CONTEXT_CATEGORY not in allowed
+    ):
+        return "permanent_context_not_requested"
+    return None
 
 
 def _category_allowed(
@@ -383,22 +471,56 @@ def _category_allowed(
     allowed_categories: list[str] | None = None,
     blocked_categories: list[str] | None = None,
 ) -> bool:
-    requested_category = category.strip() if category and category.strip() else None
-    allowed = _clean_categories(allowed_categories)
-    blocked = _clean_categories(blocked_categories)
-    if node_category in blocked:
-        return False
-    if requested_category and node_category != requested_category:
-        return False
-    if allowed and node_category not in allowed:
-        return False
-    if (
-        node_category == PERMANENT_CONTEXT_CATEGORY
-        and requested_category != PERMANENT_CONTEXT_CATEGORY
-        and PERMANENT_CONTEXT_CATEGORY not in allowed
-    ):
-        return False
-    return True
+    return _category_rejection_reason(
+        node_category,
+        category,
+        allowed_categories,
+        blocked_categories,
+    ) is None
+
+
+def _empty_plan(max_tokens: int, recall_budget: int | None = None, requested_limit: int | None = None) -> ContextPlan:
+    return ContextPlan(
+        maxTokens=max_tokens,
+        recallBudget=recall_budget if recall_budget is not None else max_tokens,
+        requestedLimit=requested_limit or 0,
+        candidateCount=0,
+        selectedCount=0,
+        droppedCount=0,
+        compactedCount=0,
+        totalTokens=0,
+        budgets={
+            "max": max_tokens,
+            "recall": recall_budget if recall_budget is not None else max_tokens,
+            "permanent": 0,
+        },
+    )
+
+
+def _plan_entry(
+    node: Any,
+    *,
+    tier: str,
+    score: float = 0.0,
+    original_tokens: int | None = None,
+    planned_tokens: int | None = None,
+    disposition: str,
+    reason: str,
+    matched_terms: list[str] | None = None,
+) -> ContextPlanEntry:
+    return ContextPlanEntry(
+        id=str(node.path),
+        path=str(node.path),
+        title=str(node.title),
+        category=str(node.category),
+        tier=tier,
+        score=score,
+        originalTokens=original_tokens if original_tokens is not None else int(node.token_estimate),
+        plannedTokens=planned_tokens if planned_tokens is not None else int(node.token_estimate),
+        disposition=disposition,
+        reason=reason,
+        matchedTerms=matched_terms or [],
+    )
 
 
 class SidecarKnowledgeTree(KnowledgeTree):
@@ -492,22 +614,88 @@ class ContextForgeStore:
         self,
         namespace: Namespace,
         max_tokens: int,
+        query: str,
+        include_permanent: bool,
         allowed_categories: list[str] | None = None,
         blocked_categories: list[str] | None = None,
-    ) -> tuple[str, int]:
-        if not _category_allowed(
+    ) -> tuple[str, int, ContextPlanEntry | None, list[ContextPlanEntry], int]:
+        path = f"{_namespace_path(namespace)}/{PERMANENT_CONTEXT_CATEGORY}/permanent"
+        node = self.tree.get(path)
+        if not node:
+            return "", 0, None, [], 0
+
+        dropped: list[ContextPlanEntry] = []
+        if not include_permanent:
+            return (
+                "",
+                0,
+                None,
+                [
+                    _plan_entry(
+                        node,
+                        tier="permanent",
+                        disposition="dropped",
+                        reason="permanent_context_disabled",
+                    )
+                ],
+                1,
+            )
+
+        category_reason = _category_rejection_reason(
             PERMANENT_CONTEXT_CATEGORY,
             category=PERMANENT_CONTEXT_CATEGORY,
             allowed_categories=allowed_categories,
             blocked_categories=blocked_categories,
-        ):
-            return "", 0
-        path = f"{_namespace_path(namespace)}/{PERMANENT_CONTEXT_CATEGORY}/permanent"
-        node = self.tree.get(path)
-        if not node:
-            return "", 0
-        text = _fit_to_token_budget(node.content, max_tokens)
-        return text, estimate_tokens(text)
+        )
+        if category_reason:
+            return (
+                "",
+                0,
+                None,
+                [
+                    _plan_entry(
+                        node,
+                        tier="permanent",
+                        disposition="dropped",
+                        reason=category_reason,
+                    )
+                ],
+                1,
+            )
+
+        text = _compact_content_for_query(node.content, query, max_tokens)
+        tokens = estimate_tokens(text)
+        if not text.strip():
+            return (
+                "",
+                0,
+                None,
+                [
+                    _plan_entry(
+                        node,
+                        tier="permanent",
+                        planned_tokens=0,
+                        disposition="dropped",
+                        reason="over_permanent_budget",
+                    )
+                ],
+                1,
+            )
+        disposition = "pinned" if tokens >= node.token_estimate else "compacted"
+        reason = "permanent_context_pinned" if disposition == "pinned" else "permanent_context_compacted_to_budget"
+        return (
+            text,
+            tokens,
+            _plan_entry(
+                node,
+                tier="permanent",
+                planned_tokens=tokens,
+                disposition=disposition,
+                reason=reason,
+            ),
+            dropped,
+            0,
+        )
 
     def _session_id(self, namespace: Namespace, session_id: str | None = None) -> str:
         explicit = session_id or namespace.sessionId or namespace.sessionKey or namespace.channelId or "default"
@@ -744,7 +932,13 @@ class ContextForgeStore:
             if part and part.strip()
         )
         if not combined_query:
-            return RecallResponse(context="", sources=[], totalTokens=0, latencyMs=0)
+            return RecallResponse(
+                context="",
+                sources=[],
+                totalTokens=0,
+                latencyMs=0,
+                plan=_empty_plan(max_tokens, max_tokens, limit),
+            )
 
         with self._lock:
             results = self.index.search(combined_query, top_k=max(self.index.num_docs, limit * 20, 100))
@@ -756,9 +950,10 @@ class ContextForgeStore:
                 request.allowedCategories,
                 request.blockedCategories,
             )
-            selected = self._select_results(
+            context, sources, tokens, plan = self._plan_recall_context(
                 results,
                 namespace_prefix,
+                combined_query,
                 request.category,
                 request.allowedCategories,
                 request.blockedCategories,
@@ -767,29 +962,38 @@ class ContextForgeStore:
                 request.minScore,
                 request.maxSourceTokens,
             )
-            context, sources, tokens = self._assemble(selected, max_tokens)
 
         return RecallResponse(
             context=context,
             sources=sources,
             totalTokens=tokens,
             latencyMs=int((time.perf_counter() - started) * 1000),
+            plan=plan,
         )
 
     def context(self, request: ContextRequest) -> ContextResponse:
         started = time.perf_counter()
         max_tokens = max(1, request.maxTokens or self.settings.max_context_tokens)
-        permanent = ""
-        permanent_tokens = 0
+        permanent_heading = "## Permanent ContextForge Context\n"
+        permanent_budget = 0
         if request.includePermanent:
-            permanent, permanent_tokens = self._permanent_context(
+            permanent_budget = max(1, max_tokens // 3) if max_tokens < 384 else max(128, max_tokens // 4)
+        permanent_content_budget = max(0, permanent_budget - estimate_tokens(permanent_heading))
+        permanent, permanent_tokens, permanent_item, permanent_drops, permanent_dropped_count = (
+            self._permanent_context(
                 request.namespace,
-                max_tokens,
+                permanent_content_budget,
+                request.query,
+                request.includePermanent,
                 request.allowedCategories,
                 request.blockedCategories,
             )
+        )
 
-        recall_budget = max(1, max_tokens - permanent_tokens)
+        permanent_block = f"{permanent_heading}{permanent}" if permanent else ""
+        permanent_block_tokens = estimate_tokens(permanent_block)
+        separator_tokens = estimate_tokens("\n\n") if permanent_block else 0
+        recall_budget = max(1, max_tokens - permanent_block_tokens - separator_tokens)
         recall = self.recall(
             RecallRequest(
                 namespace=request.namespace,
@@ -806,19 +1010,41 @@ class ContextForgeStore:
         )
 
         parts: list[str] = []
-        if permanent:
-            parts.append("## Permanent ContextForge Context\n" + permanent)
+        if permanent_block:
+            parts.append(permanent_block)
         if recall.context:
             parts.append(recall.context)
         context = "\n\n".join(parts)
+        total_tokens = estimate_tokens(context)
+        permanent_entries = [permanent_item] if permanent_item else []
+        plan = ContextPlan(
+            maxTokens=max_tokens,
+            recallBudget=recall_budget,
+            requestedLimit=recall.plan.requestedLimit,
+            candidateCount=recall.plan.candidateCount + len(permanent_entries) + permanent_dropped_count,
+            selectedCount=recall.plan.selectedCount + len(permanent_entries),
+            droppedCount=recall.plan.droppedCount + permanent_dropped_count,
+            compactedCount=recall.plan.compactedCount
+            + sum(1 for entry in permanent_entries if entry.disposition == "compacted"),
+            totalTokens=total_tokens,
+            budgets={
+                "max": max_tokens,
+                "permanent": permanent_budget,
+                "permanentActual": permanent_block_tokens,
+                "recall": recall_budget,
+            },
+            items=[*permanent_entries, *recall.plan.items],
+            dropped=[*permanent_drops, *recall.plan.dropped],
+        )
 
         return ContextResponse(
             context=context,
             sources=recall.sources,
-            totalTokens=estimate_tokens(context),
+            totalTokens=total_tokens,
             latencyMs=int((time.perf_counter() - started) * 1000),
             permanentTokens=permanent_tokens,
             branchPaths=[source.id for source in recall.sources],
+            plan=plan,
         )
 
     def _recent_session_context(self, session_id: str, max_turns: int = 6) -> str:
@@ -1097,10 +1323,11 @@ class ContextForgeStore:
                 merged[result.path] = result
         return sorted(merged.values(), key=lambda result: -result.score)
 
-    def _select_results(
+    def _plan_recall_context(
         self,
         results: list[SearchResult],
         namespace_prefix: str,
+        query: str,
         category: str | None,
         allowed_categories: list[str],
         blocked_categories: list[str],
@@ -1108,50 +1335,94 @@ class ContextForgeStore:
         limit: int,
         min_score: float | None,
         max_source_tokens: int | None,
-    ) -> list[SearchResult]:
-        selected: list[SearchResult] = []
-        total_tokens = 0
+    ) -> tuple[str, list[Source], int, ContextPlan]:
+        parts = ["## Relevant ContextForge Memory"]
+        sources: list[Source] = []
+        items: list[ContextPlanEntry] = []
+        dropped: list[ContextPlanEntry] = []
+        dropped_count = 0
+        candidate_count = 0
+        compacted_count = 0
         source_token_limit = max_source_tokens if max_source_tokens and max_source_tokens > 0 else None
+
+        def record_drop(node: Any, result: SearchResult, reason: str) -> None:
+            nonlocal dropped_count
+            dropped_count += 1
+            if len(dropped) < 25:
+                dropped.append(
+                    _plan_entry(
+                        node,
+                        tier="memory",
+                        score=result.score,
+                        planned_tokens=0,
+                        disposition="dropped",
+                        reason=reason,
+                        matched_terms=result.matched_terms,
+                    )
+                )
+
         for result in results:
             if not result.path.startswith(namespace_prefix):
                 continue
-            if min_score is not None and result.score < min_score:
+            node = self.tree.get(result.path)
+            if not node:
                 continue
-            if not _category_allowed(
+            candidate_count += 1
+
+            category_reason = _category_rejection_reason(
                 result.category,
                 category,
                 allowed_categories,
                 blocked_categories,
-            ):
+            )
+            if category_reason:
+                record_drop(node, result, category_reason)
                 continue
-            node = self.tree.get(result.path)
-            if not node:
-                continue
-            if source_token_limit and node.token_estimate > source_token_limit:
-                continue
-            entry_tokens = node.token_estimate + estimate_tokens(f"\n### {node.title} [{node.path}]")
-            next_total = total_tokens + entry_tokens
-            if next_total > max_tokens:
-                continue
-            selected.append(result)
-            total_tokens = next_total
-            if len(selected) >= limit:
-                break
-        return selected
 
-    def _assemble(self, results: list[SearchResult], max_tokens: int) -> tuple[str, list[Source], int]:
-        if not results:
-            return "", [], 0
-        parts = ["## Relevant ContextForge Memory"]
-        sources: list[Source] = []
-        for result in results:
-            node = self.tree.get(result.path)
-            if not node:
+            if min_score is not None and result.score < min_score:
+                record_drop(node, result, "below_min_score")
                 continue
-            candidate_parts = [*parts, f"\n### {node.title} [{node.path}]", node.content]
-            if estimate_tokens("\n".join(candidate_parts)) > max_tokens:
+
+            if len(sources) >= limit:
+                record_drop(node, result, "source_limit_reached")
                 continue
-            parts = candidate_parts
+
+            header = f"\n### {node.title} [{node.path}]"
+            planned_content = node.content
+            planned_tokens = node.token_estimate
+            disposition = "included"
+            reasons: list[str] = []
+
+            if source_token_limit and node.token_estimate > source_token_limit:
+                planned_content = _compact_content_for_query(node.content, query, source_token_limit)
+                planned_tokens = estimate_tokens(planned_content)
+                disposition = "compacted"
+                reasons.append("per_source_token_cap")
+
+            candidate_context = "\n".join([*parts, header, planned_content])
+            if estimate_tokens(candidate_context) > max_tokens:
+                header_tokens = estimate_tokens("\n".join([*parts, header]))
+                remaining_content_tokens = max(0, max_tokens - header_tokens)
+                if source_token_limit:
+                    remaining_content_tokens = min(remaining_content_tokens, source_token_limit)
+                planned_content = _compact_content_for_query(
+                    node.content,
+                    query,
+                    remaining_content_tokens,
+                )
+                planned_tokens = estimate_tokens(planned_content)
+                candidate_context = "\n".join([*parts, header, planned_content])
+                if not planned_content.strip() or estimate_tokens(candidate_context) > max_tokens:
+                    record_drop(node, result, "over_context_budget")
+                    continue
+                disposition = "compacted"
+                reasons.append("remaining_context_budget")
+
+            if disposition == "compacted":
+                compacted_count += 1
+
+            parts = [*parts, header, planned_content]
+            reason = ",".join(dict.fromkeys(reasons)) if reasons else "selected_by_contextforge_planner"
             sources.append(
                 Source(
                     id=node.path,
@@ -1159,12 +1430,54 @@ class ContextForgeStore:
                     title=node.title,
                     category=node.category,
                     score=result.score,
-                    tokens=node.token_estimate,
+                    tokens=planned_tokens,
                     matchedTerms=result.matched_terms,
                 )
             )
-        context = "\n".join(parts) if sources else ""
-        return context, sources, estimate_tokens(context)
+            items.append(
+                _plan_entry(
+                    node,
+                    tier="memory",
+                    score=result.score,
+                    planned_tokens=planned_tokens,
+                    disposition=disposition,
+                    reason=reason,
+                    matched_terms=result.matched_terms,
+                )
+            )
+
+        if not sources:
+            plan = ContextPlan(
+                maxTokens=max_tokens,
+                recallBudget=max_tokens,
+                requestedLimit=limit,
+                candidateCount=candidate_count,
+                selectedCount=0,
+                droppedCount=dropped_count,
+                compactedCount=0,
+                totalTokens=0,
+                budgets={"max": max_tokens, "recall": max_tokens, "permanent": 0},
+                items=[],
+                dropped=dropped,
+            )
+            return "", [], 0, plan
+
+        context = "\n".join(parts)
+        total_tokens = estimate_tokens(context)
+        plan = ContextPlan(
+            maxTokens=max_tokens,
+            recallBudget=max_tokens,
+            requestedLimit=limit,
+            candidateCount=candidate_count,
+            selectedCount=len(sources),
+            droppedCount=dropped_count,
+            compactedCount=compacted_count,
+            totalTokens=total_tokens,
+            budgets={"max": max_tokens, "recall": max_tokens, "permanent": 0},
+            items=items,
+            dropped=dropped,
+        )
+        return context, sources, total_tokens, plan
 
     def forget(self, request: ForgetRequest) -> ForgetResponse:
         namespace_prefix = f"{_namespace_path(request.namespace)}/"

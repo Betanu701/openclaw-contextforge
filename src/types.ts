@@ -38,6 +38,35 @@ export type ContextForgeSource = {
   matchedTerms: string[];
 };
 
+export type ContextPlanEntry = {
+  id: string;
+  path: string;
+  title: string;
+  category: string;
+  tier: string;
+  score: number;
+  originalTokens: number;
+  plannedTokens: number;
+  disposition: string;
+  reason: string;
+  matchedTerms: string[];
+};
+
+export type ContextPlan = {
+  strategy: string;
+  maxTokens: number;
+  recallBudget: number;
+  requestedLimit: number;
+  candidateCount: number;
+  selectedCount: number;
+  droppedCount: number;
+  compactedCount: number;
+  totalTokens: number;
+  budgets: Record<string, number>;
+  items: ContextPlanEntry[];
+  dropped: ContextPlanEntry[];
+};
+
 export type RecallRequest = {
   namespace: ContextForgeNamespace;
   query: string;
@@ -56,6 +85,7 @@ export type RecallResponse = {
   sources: ContextForgeSource[];
   totalTokens: number;
   latencyMs: number;
+  plan: ContextPlan;
 };
 
 export type ContextRequest = RecallRequest & {
